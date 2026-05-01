@@ -140,6 +140,9 @@ html,body{height:100%;font-family:'Noto Sans SC',sans-serif;background:var(--bg)
           <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>商品管理
         </div>
         <div class="nav-section">系统</div>
+        <div class="nav-item" onclick="showSection('shop',this)">
+          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>店铺设置
+        </div>
         <div class="nav-item" onclick="showSection('settings',this)">
           <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06-.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>系统设置
         </div>
@@ -191,6 +194,86 @@ html,body{height:100%;font-family:'Noto Sans SC',sans-serif;background:var(--bg)
             <button class="btn-add" onclick="openAddProduct()">＋ 添加商品</button>
           </div>
           <div class="products-grid" id="productsGrid"><div class="loading" style="grid-column:1/-1;">加载中...</div></div>
+        </div>
+
+        <!-- SHOP SETTINGS -->
+        <div class="section" id="sec-shop">
+          <div class="settings-section">
+            <div class="settings-title">🏪 店铺外观设置</div>
+            
+            <!-- Logo Upload -->
+            <div class="form-group">
+              <label class="form-label">店铺 Logo</label>
+              <div style="display:flex;align-items:center;gap:14px;margin-bottom:10px;">
+                <div id="logoPreviewWrap" style="width:60px;height:60px;border-radius:50%;background:linear-gradient(135deg,#C8352A,#8B1A12);display:flex;align-items:center;justify-content:center;font-size:24px;color:#fff;font-weight:700;font-family:'Noto Serif SC',serif;overflow:hidden;flex-shrink:0;">
+                  <span id="logoText">味</span>
+                  <img id="logoImgPreview" style="display:none;width:100%;height:100%;object-fit:cover;">
+                </div>
+                <div style="flex:1;">
+                  <button onclick="document.getElementById('logoFileInput').click()" class="btn-save" style="padding:9px;font-size:12px;margin:0 0 6px 0;background:var(--blue);">📷 上传 Logo 图片</button>
+                  <div style="font-size:10px;color:var(--text2);">建议正方形图片，支持 JPG/PNG</div>
+                </div>
+              </div>
+              <input type="file" id="logoFileInput" accept="image/*" style="display:none;" onchange="previewLogo(this)">
+            </div>
+
+            <!-- Shop Name -->
+            <div class="form-group">
+              <label class="form-label">店铺名称（中文）</label>
+              <input class="form-input" id="shopNameCN" placeholder="味香园" value="">
+            </div>
+            <div class="form-group">
+              <label class="form-label">店铺名称（英文）</label>
+              <input class="form-input" id="shopNameEN" placeholder="Weixiang Yuan" value="">
+            </div>
+
+            <!-- Logo Letter -->
+            <div class="form-group">
+              <label class="form-label">Logo 文字（没有图片时显示）</label>
+              <input class="form-input" id="logoLetter" placeholder="味" maxlength="1" value="">
+            </div>
+
+            <!-- Banner -->
+            <div class="form-group">
+              <label class="form-label">横幅标题（中文）</label>
+              <input class="form-input" id="bannerTitleCN" placeholder="🎊 会员专属礼遇" value="">
+            </div>
+            <div class="form-group">
+              <label class="form-label">横幅标题（英文）</label>
+              <input class="form-input" id="bannerTitleEN" placeholder="🎊 Member Exclusive Deals" value="">
+            </div>
+
+            <!-- Preview -->
+            <div style="background:var(--bg);border-radius:12px;padding:14px;margin-bottom:14px;border:1px solid var(--border);">
+              <div style="font-size:11px;color:var(--muted);margin-bottom:8px;font-weight:600;">预览效果：</div>
+              <div style="display:flex;align-items:center;gap:9px;">
+                <div id="previewLogo" style="width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#C8352A,#8B1A12);display:flex;align-items:center;justify-content:center;font-size:16px;color:#fff;font-weight:700;overflow:hidden;">
+                  <span id="previewLogoText">味</span>
+                  <img id="previewLogoImg" style="display:none;width:100%;height:100%;object-fit:cover;">
+                </div>
+                <div id="previewName" style="font-size:15px;font-weight:700;color:#C8352A;letter-spacing:2px;">味香园</div>
+              </div>
+            </div>
+
+            <button class="btn-save" onclick="saveShopSettings()">💾 保存并应用到前台</button>
+          </div>
+
+          <div class="settings-section">
+            <div class="settings-title">🎨 主题颜色</div>
+            <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px;">
+              <div onclick="selectColor('#C8352A',this)" style="height:44px;border-radius:10px;background:#C8352A;cursor:pointer;border:3px solid #C8352A;position:relative;" title="中国红">
+                <div style="position:absolute;bottom:2px;width:100%;text-align:center;font-size:9px;color:#fff;font-weight:700;">默认</div>
+              </div>
+              <div onclick="selectColor('#1565C0',this)" style="height:44px;border-radius:10px;background:#1565C0;cursor:pointer;border:3px solid transparent;" title="深蓝"></div>
+              <div onclick="selectColor('#2E7D32',this)" style="height:44px;border-radius:10px;background:#2E7D32;cursor:pointer;border:3px solid transparent;" title="墨绿"></div>
+              <div onclick="selectColor('#6A1B9A',this)" style="height:44px;border-radius:10px;background:#6A1B9A;cursor:pointer;border:3px solid transparent;" title="紫色"></div>
+              <div onclick="selectColor('#E65100',this)" style="height:44px;border-radius:10px;background:#E65100;cursor:pointer;border:3px solid transparent;" title="橙色"></div>
+              <div onclick="selectColor('#AD1457',this)" style="height:44px;border-radius:10px;background:#AD1457;cursor:pointer;border:3px solid transparent;" title="玫红"></div>
+              <div onclick="selectColor('#00838F',this)" style="height:44px;border-radius:10px;background:#00838F;cursor:pointer;border:3px solid transparent;" title="青绿"></div>
+              <div onclick="selectColor('#4E342E',this)" style="height:44px;border-radius:10px;background:#4E342E;cursor:pointer;border:3px solid transparent;" title="深棕"></div>
+            </div>
+            <button class="btn-save" onclick="saveShopSettings()">💾 保存颜色</button>
+          </div>
         </div>
 
         <div class="section" id="sec-settings">
@@ -268,6 +351,7 @@ function doAdminLogin() {
     document.getElementById('loginPage').style.display = 'none';
     document.getElementById('adminPage').style.display = 'block';
     loadProducts();
+    loadShopSettings();
     showToast('欢迎回来！');
   } else { showToast('账号或密码错误！'); }
 }
@@ -275,7 +359,7 @@ function doLogout() { document.getElementById('adminPage').style.display = 'none
 function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); document.getElementById('overlay').classList.toggle('show'); }
 function closeSidebar() { document.getElementById('sidebar').classList.remove('open'); document.getElementById('overlay').classList.remove('show'); }
 
-const titles = {dashboard:'数据总览',products:'商品管理',settings:'系统设置'};
+const titles = {dashboard:'数据总览',products:'商品管理',shop:'店铺设置',settings:'系统设置'};
 function showSection(id, el) {
   document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
@@ -440,6 +524,83 @@ async function aiTranslate() {
 
   btn.textContent = '🤖 AI翻译';
   btn.disabled = false;
+}
+
+
+// ===== SHOP SETTINGS =====
+function loadShopSettings() {
+  const s = JSON.parse(localStorage.getItem('shopSettings') || '{}');
+  if (s.nameCN) document.getElementById('shopNameCN').value = s.nameCN;
+  if (s.nameEN) document.getElementById('shopNameEN').value = s.nameEN;
+  if (s.letter) document.getElementById('logoLetter').value = s.letter;
+  if (s.bannerCN) document.getElementById('bannerTitleCN').value = s.bannerCN;
+  if (s.bannerEN) document.getElementById('bannerTitleEN').value = s.bannerEN;
+  if (s.logo) {
+    document.getElementById('logoImgPreview').src = s.logo;
+    document.getElementById('logoImgPreview').style.display = 'block';
+    document.getElementById('logoText').style.display = 'none';
+    document.getElementById('previewLogoImg').src = s.logo;
+    document.getElementById('previewLogoImg').style.display = 'block';
+    document.getElementById('previewLogoText').style.display = 'none';
+  }
+  if (s.nameCN) document.getElementById('previewName').textContent = s.nameCN;
+  if (s.letter) {
+    document.getElementById('previewLogoText').textContent = s.letter;
+    document.getElementById('logoText').textContent = s.letter;
+  }
+  if (s.color) applyColor(s.color);
+}
+
+function previewLogo(input) {
+  if (!input.files || !input.files[0]) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const src = e.target.result;
+    document.getElementById('logoImgPreview').src = src;
+    document.getElementById('logoImgPreview').style.display = 'block';
+    document.getElementById('logoText').style.display = 'none';
+    document.getElementById('previewLogoImg').src = src;
+    document.getElementById('previewLogoImg').style.display = 'block';
+    document.getElementById('previewLogoText').style.display = 'none';
+  };
+  reader.readAsDataURL(input.files[0]);
+}
+
+function selectColor(color, el) {
+  document.querySelectorAll('[onclick^="selectColor"]').forEach(e => e.style.border = '3px solid transparent');
+  el.style.border = '3px solid #fff';
+  applyColor(color);
+}
+
+function applyColor(color) {
+  document.documentElement.style.setProperty('--red', color);
+  document.getElementById('logoPreviewWrap').style.background = `linear-gradient(135deg,${color},${color}aa)`;
+  document.getElementById('previewLogo').style.background = `linear-gradient(135deg,${color},${color}aa)`;
+  document.getElementById('previewName').style.color = color;
+}
+
+// Live preview update
+document.addEventListener('input', e => {
+  if (e.target.id === 'shopNameCN') document.getElementById('previewName').textContent = e.target.value || '味香园';
+  if (e.target.id === 'logoLetter') {
+    const letter = e.target.value || '味';
+    document.getElementById('previewLogoText').textContent = letter;
+    document.getElementById('logoText').textContent = letter;
+  }
+});
+
+function saveShopSettings() {
+  const s = {
+    nameCN: document.getElementById('shopNameCN').value || '味香园',
+    nameEN: document.getElementById('shopNameEN').value || '',
+    letter: document.getElementById('logoLetter').value || '味',
+    bannerCN: document.getElementById('bannerTitleCN').value || '',
+    bannerEN: document.getElementById('bannerTitleEN').value || '',
+    logo: document.getElementById('logoImgPreview').src || '',
+    color: getComputedStyle(document.documentElement).getPropertyValue('--red').trim(),
+  };
+  localStorage.setItem('shopSettings', JSON.stringify(s));
+  showToast('店铺设置已保存！✅ 刷新前台即可看到效果');
 }
 
 function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2200);}

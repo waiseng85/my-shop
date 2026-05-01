@@ -796,6 +796,33 @@ renderProducts = function(list) {
   }).join('');
 };
 
+
+// ===== LOAD SHOP SETTINGS =====
+function applyShopSettings() {
+  const s = JSON.parse(localStorage.getItem('shopSettings') || '{}');
+  
+  if (s.nameCN) {
+    document.querySelectorAll('.logo-name').forEach(el => el.textContent = s.nameCN);
+    document.title = s.nameCN + ' · 精品食品店';
+  }
+  if (s.color) {
+    document.documentElement.style.setProperty('--red', s.color);
+    document.documentElement.style.setProperty('--red-light', s.color + 'cc');
+  }
+  if (s.logo) {
+    document.querySelectorAll('.logo-circle').forEach(el => {
+      el.innerHTML = `<img src="${s.logo}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
+    });
+  } else if (s.letter) {
+    document.querySelectorAll('.logo-circle').forEach(el => el.textContent = s.letter);
+  }
+  if (s.bannerCN) {
+    const h2 = document.querySelector('.hero-content h2');
+    if (h2) h2.textContent = s.bannerCN;
+  }
+}
+
+applyShopSettings();
 loadProducts();
 updateCartBadge();
 </script>
