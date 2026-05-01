@@ -125,6 +125,8 @@ body{font-family:'Noto Sans SC',sans-serif;background:var(--bg);color:var(--text
 .toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(20px);background:#1C1410;color:#fff;padding:9px 18px;border-radius:20px;font-size:12px;font-weight:500;opacity:0;transition:all 0.3s;z-index:999;white-space:nowrap;}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
 @keyframes fadeUp{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+.delivery-opt{border:2px solid var(--border);border-radius:12px;padding:14px;cursor:pointer;text-align:center;transition:all 0.2s;background:#fff;}
+.delivery-opt.selected{border-color:var(--red);background:#FFF5F4;}
 .order-success{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:60%;gap:14px;text-align:center;padding:20px;}
 .success-icon{font-size:72px;animation:pop 0.5s ease;}
 @keyframes pop{0%{transform:scale(0.5);opacity:0;}70%{transform:scale(1.1);}100%{transform:scale(1);opacity:1;}}
@@ -229,13 +231,55 @@ body{font-family:'Noto Sans SC',sans-serif;background:var(--bg);color:var(--text
   <div class="page-body" id="checkoutBody">
     <div class="section gap-stack">
       <div class="checkout-section">
-        <h3>📍 收货地址</h3>
-        <div class="form-group"><label class="form-label">收货人姓名</label><input class="form-input" type="text" placeholder="请输入姓名"></div>
-        <div class="form-group"><label class="form-label">联系电话</label><input class="form-input" type="tel" placeholder="+60 12-345 6789"></div>
-        <div class="form-group"><label class="form-label">详细地址</label><input class="form-input" type="text" placeholder="街道、门牌号"></div>
-        <div class="form-row2">
-          <div class="form-group" style="margin-bottom:0;"><label class="form-label">城市</label><input class="form-input" type="text" placeholder="George Town"></div>
-          <div class="form-group" style="margin-bottom:0;"><label class="form-label">邮编</label><input class="form-input" type="text" placeholder="10000"></div>
+        <h3>🚀 配送方式</h3>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;">
+          <div class="delivery-opt selected" id="opt-delivery" onclick="selectDelivery('delivery')">
+            <div style="font-size:28px;margin-bottom:6px;">🚚</div>
+            <div style="font-size:13px;font-weight:700;">邮寄送货</div>
+            <div style="font-size:10px;color:var(--muted);margin-top:3px;">运费 RM5<br>满RM50免运</div>
+          </div>
+          <div class="delivery-opt" id="opt-pickup" onclick="selectDelivery('pickup')">
+            <div style="font-size:28px;margin-bottom:6px;">🏪</div>
+            <div style="font-size:13px;font-weight:700;">到店自取</div>
+            <div style="font-size:10px;color:var(--muted);margin-top:3px;">免运费<br>需预约时间</div>
+          </div>
+        </div>
+
+        <!-- Delivery Address -->
+        <div id="deliveryForm">
+          <h3 style="font-size:13px;font-weight:700;margin-bottom:12px;color:var(--text);">📍 收货地址</h3>
+          <div class="form-group"><label class="form-label">收货人姓名</label><input class="form-input" id="recipientName" type="text" placeholder="请输入姓名"></div>
+          <div class="form-group"><label class="form-label">联系电话</label><input class="form-input" id="recipientPhone" type="tel" placeholder="+60 12-345 6789"></div>
+          <div class="form-group"><label class="form-label">详细地址</label><input class="form-input" id="recipientAddr" type="text" placeholder="街道、门牌号"></div>
+          <div class="form-row2">
+            <div class="form-group" style="margin-bottom:0;"><label class="form-label">城市</label><input class="form-input" id="recipientCity" type="text" placeholder="George Town"></div>
+            <div class="form-group" style="margin-bottom:0;"><label class="form-label">邮编</label><input class="form-input" id="recipientPostcode" type="text" placeholder="10000"></div>
+          </div>
+        </div>
+
+        <!-- Pickup Form -->
+        <div id="pickupForm" style="display:none;">
+          <h3 style="font-size:13px;font-weight:700;margin-bottom:12px;color:var(--text);">🏪 自取资料</h3>
+          <div class="form-group"><label class="form-label">姓名</label><input class="form-input" id="pickupName" type="text" placeholder="请输入姓名"></div>
+          <div class="form-group"><label class="form-label">联系电话</label><input class="form-input" id="pickupPhone" type="tel" placeholder="+60 12-345 6789"></div>
+          <div class="form-group"><label class="form-label">预约自取日期</label><input class="form-input" id="pickupDate" type="date"></div>
+          <div class="form-group"><label class="form-label">预约时间</label>
+            <select class="form-input" id="pickupTime" style="appearance:auto;">
+              <option value="">请选择时间</option>
+              <option value="10:00">10:00 AM</option>
+              <option value="11:00">11:00 AM</option>
+              <option value="12:00">12:00 PM</option>
+              <option value="14:00">2:00 PM</option>
+              <option value="15:00">3:00 PM</option>
+              <option value="16:00">4:00 PM</option>
+              <option value="17:00">5:00 PM</option>
+            </select>
+          </div>
+          <div style="background:#E8F5E9;border-radius:10px;padding:12px;font-size:11px;color:#2E7D32;line-height:1.7;">
+            📍 <strong>店铺地址：</strong><br>
+            请在后台「店铺设置」填写店铺地址<br>
+            营业时间：10:00 AM - 6:00 PM
+          </div>
         </div>
       </div>
 
@@ -368,7 +412,7 @@ body{font-family:'Noto Sans SC',sans-serif;background:var(--bg);color:var(--text
       <div style="padding:14px 0;text-align:center;"><div style="font-size:18px;font-weight:700;color:var(--red);">2</div><div style="font-size:10px;color:var(--muted);margin-top:2px;">优惠券</div></div>
     </div>
     <div style="height:10px;background:var(--bg);"></div>
-    <div class="menu-item"><div class="menu-item-icon" style="background:#FFF3E0;">📦</div><div style="flex:1;font-size:13px;font-weight:500;">我的订单</div><div style="color:var(--muted);">›</div></div>
+    <div class="menu-item" onclick="goPage('page-track')"><div class="menu-item-icon" style="background:#FFF3E0;">📦</div><div style="flex:1;font-size:13px;font-weight:500;">我的订单</div><div style="color:var(--muted);">›</div></div>
     <div class="menu-item"><div class="menu-item-icon" style="background:#FCE4EC;">❤️</div><div style="flex:1;font-size:13px;font-weight:500;">收藏商品</div><div style="color:var(--muted);">›</div></div>
     <div class="menu-item"><div class="menu-item-icon" style="background:#E3F2FD;">📍</div><div style="flex:1;font-size:13px;font-weight:500;">收货地址</div><div style="color:var(--muted);">›</div></div>
     <div class="spacer-bottom"></div>
@@ -377,6 +421,39 @@ body{font-family:'Noto Sans SC',sans-serif;background:var(--bg);color:var(--text
     <div class="bnav-item" onclick="goPage('page-shop')"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="m3 9 9-7 9 7v11a2 2 0 0 0-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>首页</div>
     <div class="bnav-item" onclick="goPage('page-cart')"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>购物车</div>
     <div class="bnav-item active"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>我的</div>
+  </div>
+</div>
+
+<!-- ========== ORDER TRACKING PAGE ========== -->
+<div class="page" id="page-track">
+  <div class="topnav">
+    <button class="icon-btn" onclick="goBack()"><svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></svg></button>
+    <div class="page-title">查询订单</div>
+    <div style="width:30px;"></div>
+  </div>
+  <div class="page-body">
+    <div class="section">
+      <!-- Search -->
+      <div style="background:#fff;border-radius:13px;padding:16px;border:1px solid var(--border);margin-bottom:14px;">
+        <div style="font-size:14px;font-weight:700;margin-bottom:12px;">🔍 输入订单号查询</div>
+        <div style="display:flex;gap:8px;">
+          <input id="trackInput" class="form-input" type="text" placeholder="例：#847392" style="flex:1;">
+          <button onclick="searchOrder()" style="background:var(--red);color:#fff;border:none;padding:10px 16px;border-radius:9px;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;">查询</button>
+        </div>
+      </div>
+
+      <!-- Result -->
+      <div id="trackResult"></div>
+
+      <!-- My Orders -->
+      <div style="background:#fff;border-radius:13px;padding:16px;border:1px solid var(--border);margin-top:14px;">
+        <div style="font-size:14px;font-weight:700;margin-bottom:12px;">📦 我的订单记录</div>
+        <div id="myOrders">
+          <div style="text-align:center;padding:20px;color:var(--muted);font-size:13px;">暂无订单记录</div>
+        </div>
+      </div>
+    </div>
+    <div class="spacer-bottom"></div>
   </div>
 </div>
 
@@ -482,11 +559,11 @@ function renderCart() {
     </div>`;
   }).join('');
   const sub = items.reduce((s,[id,qty]) => s + parseFloat(allProducts.find(x=>x.id==id)?.price||0)*qty, 0);
-  const ship = sub >= 50 ? 0 : 5;
+  const ship = (deliveryMethod === 'pickup' || sub >= 50) ? 0 : 5;
   const disc = isLoggedIn ? sub * 0.1 : 0;
   const total = sub + ship - disc;
   document.getElementById('sumSub').textContent = 'RM'+sub.toFixed(2);
-  document.getElementById('sumShip').textContent = ship===0?'免费':'RM'+ship.toFixed(2);
+  document.getElementById('sumShip').textContent = deliveryMethod==='pickup'?'🏪 自取免运费':ship===0?'免费':'RM'+ship.toFixed(2);
   document.getElementById('sumDisc').textContent = '-RM'+disc.toFixed(2);
   document.getElementById('sumTotal').textContent = 'RM'+total.toFixed(2);
 }
@@ -509,6 +586,19 @@ function renderCheckout() {
   document.getElementById('co-sub').textContent='RM'+sub.toFixed(2);
   document.getElementById('co-ship').textContent=ship===0?'免费':'RM'+ship.toFixed(2);
   document.getElementById('co-total').textContent='RM'+(sub+ship).toFixed(2);
+}
+
+let deliveryMethod = 'delivery';
+
+function selectDelivery(type) {
+  deliveryMethod = type;
+  document.querySelectorAll('.delivery-opt').forEach(o => o.classList.remove('selected'));
+  document.getElementById('opt-'+type).classList.add('selected');
+  document.getElementById('deliveryForm').style.display = type === 'delivery' ? 'block' : 'none';
+  document.getElementById('pickupForm').style.display = type === 'pickup' ? 'block' : 'none';
+  // Update shipping fee
+  renderCart();
+  renderCheckout();
 }
 
 function selectQR(type, el) {
@@ -560,7 +650,25 @@ async function placeOrder() {
   const CHAT_ID = '8626843491';
 
   // Send text message first
-  const msg = `🛒 新订单！\n\n订单号：${orderNo}\n\n商品：\n${itemLines}\n\n小计：RM${sub.toFixed(2)}\n运费：${ship===0?'免费':'RM'+ship.toFixed(2)}\n💰 总计：RM${total.toFixed(2)}`;
+  const isPickup = deliveryMethod === 'pickup';
+  const deliveryInfo = isPickup
+    ? `🏪 自取\n日期：${document.getElementById('pickupDate')?.value||''}\n时间：${document.getElementById('pickupTime')?.value||''}\n姓名：${document.getElementById('pickupName')?.value||''}`
+    : `🚚 邮寄\n地址：${document.getElementById('recipientAddr')?.value||''} ${document.getElementById('recipientCity')?.value||''}\n收件人：${document.getElementById('recipientName')?.value||''}\n电话：${document.getElementById('recipientPhone')?.value||''}`;
+
+  const msg = `🛒 新订单！\n\n订单号：${orderNo}\n\n商品：\n${itemLines}\n\n小计：RM${sub.toFixed(2)}\n运费：${ship===0?'免费':'RM'+ship.toFixed(2)}\n💰 总计：RM${total.toFixed(2)}\n\n${deliveryInfo}`;
+  // Save order to localStorage for tracking
+  const orderData = {
+    orderNo, date: new Date().toLocaleDateString('zh-CN'),
+    customer: '顾客', items: items.map(([id,qty]) => {
+      const p = allProducts.find(x=>x.id==id);
+      return {name:p?.name||'', qty, price:parseFloat(p?.price||0)};
+    }),
+    total, status: 0, trackNo: '', address: ''
+  };
+  const savedOrders = JSON.parse(localStorage.getItem('wxy_orders') || '[]');
+  savedOrders.unshift(orderData);
+  localStorage.setItem('wxy_orders', JSON.stringify(savedOrders));
+
   try {
     await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
       method: 'POST',
@@ -672,6 +780,7 @@ function goPage(id) {
   currentPage=id;
   if(id==='page-cart')renderCart();
   if(id==='page-checkout')renderCheckout();
+  if(id==='page-track')loadMyOrders();
   if(id==='page-auth'&&isLoggedIn){document.getElementById('page-auth').classList.remove('active');document.getElementById('page-profile').classList.add('active');currentPage='page-profile';}
 }
 
@@ -820,6 +929,61 @@ function applyShopSettings() {
     const h2 = document.querySelector('.hero-content h2');
     if (h2) h2.textContent = s.bannerCN;
   }
+}
+
+
+// ===== ORDER TRACKING =====
+const STATUS_LABELS = ['⏳ 待付款','✅ 已付款','🚚 已发货','📦 已到货'];
+const STATUS_COLORS = ['#F57F17','#2E7D32','#1565C0','#6A1B9A'];
+const STATUS_BGS = ['#FFF8E1','#E8F5E9','#E3F2FD','#F3E5F5'];
+
+function searchOrder() {
+  const no = document.getElementById('trackInput').value.trim().replace('#','');
+  const orders = JSON.parse(localStorage.getItem('wxy_orders') || '[]');
+  const o = orders.find(x => x.orderNo.replace('#','') === no || x.orderNo === '#'+no);
+  const el = document.getElementById('trackResult');
+  
+  if (!o) {
+    el.innerHTML = `<div style="background:#FFEBEE;border-radius:12px;padding:14px;text-align:center;color:var(--red);font-size:13px;">❌ 找不到此订单，请检查订单号</div>`;
+    return;
+  }
+  
+  el.innerHTML = buildOrderCard(o);
+}
+
+function buildOrderCard(o) {
+  const steps = STATUS_LABELS.map((s,i) => `
+    <div style="display:flex;align-items:center;gap:10px;padding:8px 0;">
+      <div style="width:28px;height:28px;border-radius:50%;background:${i<=o.status?STATUS_COLORS[i]:'var(--border)'};display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0;">
+        ${i<o.status?'✓':i===o.status?'●':'○'}
+      </div>
+      <div>
+        <div style="font-size:13px;font-weight:${i===o.status?'700':'400'};color:${i<=o.status?STATUS_COLORS[i]:'var(--muted)'};">${s}</div>
+        ${i===o.status&&o.trackNo?`<div style="font-size:10px;color:var(--muted);">快递单号：${o.trackNo}</div>`:''}
+      </div>
+    </div>`).join('');
+
+  return `<div style="background:#fff;border-radius:13px;padding:16px;border:1px solid var(--border);">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+      <div style="font-size:14px;font-weight:700;">${o.orderNo}</div>
+      <div style="padding:4px 10px;border-radius:20px;font-size:11px;font-weight:700;background:${STATUS_BGS[o.status]};color:${STATUS_COLORS[o.status]};">${STATUS_LABELS[o.status]}</div>
+    </div>
+    <div style="font-size:11px;color:var(--muted);margin-bottom:12px;">📅 ${o.date} · 💰 RM${parseFloat(o.total||0).toFixed(2)}</div>
+    <div style="border-top:1px solid var(--border);padding-top:12px;">${steps}</div>
+    ${o.trackNo?`<div style="background:#E3F2FD;border-radius:9px;padding:10px;margin-top:10px;font-size:12px;color:#1565C0;">
+      📦 快递单号：<strong>${o.trackNo}</strong>
+    </div>`:''}
+  </div>`;
+}
+
+function loadMyOrders() {
+  const orders = JSON.parse(localStorage.getItem('wxy_orders') || '[]');
+  const el = document.getElementById('myOrders');
+  if (orders.length === 0) {
+    el.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted);font-size:13px;">暂无订单记录</div>';
+    return;
+  }
+  el.innerHTML = orders.slice(0,10).map(o => buildOrderCard(o)).join('<div style="height:10px;"></div>');
 }
 
 applyShopSettings();

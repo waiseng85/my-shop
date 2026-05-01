@@ -140,6 +140,9 @@ html,body{height:100%;font-family:'Noto Sans SC',sans-serif;background:var(--bg)
           <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>商品管理
         </div>
         <div class="nav-section">系统</div>
+        <div class="nav-item" onclick="showSection('orders',this)">
+          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>订单管理
+        </div>
         <div class="nav-item" onclick="showSection('shop',this)">
           <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>店铺设置
         </div>
@@ -183,6 +186,13 @@ html,body{height:100%;font-family:'Noto Sans SC',sans-serif;background:var(--bg)
             <div style="font-size:14px;font-weight:700;margin-bottom:14px;">📋 最新商品</div>
             <div id="dashProducts"><div class="loading">加载中...</div></div>
           </div>
+          <div style="background:#fff;border-radius:14px;padding:18px;border:1px solid var(--border);margin-top:14px;">
+            <div style="font-size:14px;font-weight:700;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;">
+              📋 最新订单
+              <button onclick="showSection('orders',document.querySelector('.nav-item:nth-child(3)'))" style="font-size:11px;color:var(--blue);background:none;border:none;cursor:pointer;font-weight:600;">查看全部 →</button>
+            </div>
+            <div id="dashOrders"><div style="text-align:center;padding:20px;color:var(--text2);font-size:13px;">暂无订单</div></div>
+          </div>
         </div>
 
         <div class="section" id="sec-products">
@@ -194,6 +204,25 @@ html,body{height:100%;font-family:'Noto Sans SC',sans-serif;background:var(--bg)
             <button class="btn-add" onclick="openAddProduct()">＋ 添加商品</button>
           </div>
           <div class="products-grid" id="productsGrid"><div class="loading" style="grid-column:1/-1;">加载中...</div></div>
+        </div>
+
+        <!-- ORDERS -->
+        <div class="section" id="sec-orders">
+          <div class="section-header">
+            <div style="font-size:13px;color:var(--text2);">共 <span id="orderCount">0</span> 笔订单</div>
+            <div style="display:flex;gap:8px;">
+              <select id="orderFilter" onchange="filterOrders(this.value)" style="border:1.5px solid var(--border);border-radius:8px;padding:7px 10px;font-size:12px;font-family:'Noto Sans SC',sans-serif;background:#fff;outline:none;">
+                <option value="all">全部订单</option>
+                <option value="0">⏳ 待付款</option>
+                <option value="1">✅ 已付款</option>
+                <option value="2">🚚 已发货</option>
+                <option value="3">📦 已到货</option>
+              </select>
+            </div>
+          </div>
+          <div class="gap-stack" id="ordersList">
+            <div class="empty" style="text-align:center;padding:40px;color:var(--text2);font-size:13px;background:#fff;border-radius:14px;border:1px solid var(--border);">暂无订单记录</div>
+          </div>
         </div>
 
         <!-- SHOP SETTINGS -->
@@ -359,7 +388,7 @@ function doLogout() { document.getElementById('adminPage').style.display = 'none
 function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); document.getElementById('overlay').classList.toggle('show'); }
 function closeSidebar() { document.getElementById('sidebar').classList.remove('open'); document.getElementById('overlay').classList.remove('show'); }
 
-const titles = {dashboard:'数据总览',products:'商品管理',shop:'店铺设置',settings:'系统设置'};
+const titles = {dashboard:'数据总览',products:'商品管理',orders:'订单管理',shop:'店铺设置',settings:'系统设置'};
 function showSection(id, el) {
   document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
@@ -368,6 +397,7 @@ function showSection(id, el) {
   document.getElementById('topbarTitle').textContent = titles[id];
   closeSidebar();
   if(id==='products') renderProducts(allProducts);
+  if(id==='orders') renderOrders(orders);
   if(id==='dashboard') updateDashboard();
 }
 
@@ -524,6 +554,114 @@ async function aiTranslate() {
 
   btn.textContent = '🤖 AI翻译';
   btn.disabled = false;
+}
+
+
+
+// ===== ORDERS SYSTEM =====
+let orders = JSON.parse(localStorage.getItem('wxy_orders') || '[]');
+
+const STATUS = ['⏳ 待付款','✅ 已付款','🚚 已发货','📦 已到货'];
+const STATUS_CLASS = ['status-pending','status-paid','status-ship','status-done'];
+const STATUS_COLOR = ['#F57F17','#2E7D32','#1565C0','#6A1B9A'];
+const STATUS_BG = ['#FFF8E1','#E8F5E9','#E3F2FD','#F3E5F5'];
+
+function saveOrders() { localStorage.setItem('wxy_orders', JSON.stringify(orders)); }
+
+function renderOrders(list) {
+  const el = document.getElementById('ordersList');
+  document.getElementById('orderCount').textContent = orders.length;
+  if (!list || list.length === 0) {
+    el.innerHTML = '<div style="text-align:center;padding:40px;color:var(--text2);font-size:13px;background:#fff;border-radius:14px;border:1px solid var(--border);">暂无订单</div>';
+    return;
+  }
+  el.innerHTML = list.map((o, i) => `
+    <div style="background:#fff;border-radius:13px;padding:14px;border:1px solid var(--border);box-shadow:0 2px 8px rgba(0,0,0,0.06);">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+        <div>
+          <div style="font-size:13px;font-weight:700;color:var(--text);">${o.orderNo}</div>
+          <div style="font-size:11px;color:var(--text2);margin-top:2px;">📅 ${o.date} · 👤 ${o.customer||'顾客'}</div>
+        </div>
+        <div style="padding:4px 10px;border-radius:20px;font-size:11px;font-weight:700;background:${STATUS_BG[o.status]};color:${STATUS_COLOR[o.status]};">${STATUS[o.status]}</div>
+      </div>
+      
+      <!-- Order Items -->
+      <div style="background:var(--bg);border-radius:9px;padding:10px;margin-bottom:10px;font-size:12px;color:var(--text2);">
+        ${(o.items||[]).map(it=>`<div style="display:flex;justify-content:space-between;padding:3px 0;">
+          <span>${it.name} × ${it.qty}</span><span style="font-weight:600;color:var(--text);">RM${(it.price*it.qty).toFixed(2)}</span>
+        </div>`).join('')}
+        <div style="border-top:1px solid var(--border);margin-top:6px;padding-top:6px;display:flex;justify-content:space-between;font-weight:700;color:var(--red);">
+          <span>总计</span><span>RM${parseFloat(o.total||0).toFixed(2)}</span>
+        </div>
+      </div>
+
+      <!-- Address -->
+      ${o.address ? `<div style="font-size:11px;color:var(--text2);margin-bottom:10px;">📍 ${o.address}</div>` : ''}
+      
+      <!-- Tracking Number -->
+      <div style="display:flex;gap:8px;margin-bottom:10px;align-items:center;">
+        <input id="track-${o.orderNo}" value="${o.trackNo||''}" placeholder="输入快递单号（如：EX1234567890MY）" style="flex:1;border:1.5px solid var(--border);border-radius:8px;padding:7px 10px;font-size:12px;font-family:'Noto Sans SC',sans-serif;outline:none;">
+        <button onclick="saveTrackNo('${o.orderNo}')" style="background:var(--blue);color:#fff;border:none;padding:7px 12px;border-radius:8px;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;">💾 保存</button>
+      </div>
+
+      <!-- Status Buttons -->
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;">
+        ${STATUS.map((s,si)=>`
+          <button onclick="updateOrderStatus('${o.orderNo}',${si})" style="padding:6px 4px;border-radius:8px;font-size:10px;font-weight:700;cursor:pointer;border:2px solid ${o.status===si?STATUS_COLOR[si]:'var(--border)'};background:${o.status===si?STATUS_BG[si]:'#fff'};color:${o.status===si?STATUS_COLOR[si]:'var(--muted)'};">${s}</button>
+        `).join('')}
+      </div>
+
+      <!-- Send Telegram Notification -->
+      ${o.status >= 2 ? `
+      <button onclick="sendShippingNotif('${o.orderNo}')" style="width:100%;margin-top:8px;padding:8px;background:linear-gradient(135deg,#229ED9,#1a8fc4);color:#fff;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;">
+        📨 发送发货通知给顾客
+      </button>` : ''}
+    </div>`).join('');
+}
+
+function filterOrders(status) {
+  const list = status === 'all' ? orders : orders.filter(o => o.status == status);
+  renderOrders(list);
+}
+
+function updateOrderStatus(orderNo, status) {
+  const o = orders.find(x => x.orderNo === orderNo);
+  if (!o) return;
+  o.status = status;
+  saveOrders();
+  renderOrders(orders);
+  updateDashboard();
+  showToast(`订单状态已更新为：${STATUS[status]}`);
+}
+
+function saveTrackNo(orderNo) {
+  const o = orders.find(x => x.orderNo === orderNo);
+  if (!o) return;
+  o.trackNo = document.getElementById('track-'+orderNo).value.trim();
+  saveOrders();
+  showToast('快递单号已保存！✅');
+}
+
+async function sendShippingNotif(orderNo) {
+  const o = orders.find(x => x.orderNo === orderNo);
+  if (!o) return;
+  const BOT_TOKEN = '8536764732:AAHh8vWDmU74bpQZP5nDpX4Y3yHTisOiuHQ';
+  const CHAT_ID = '8626843491';
+  const msg = `🚚 发货通知！\n\n订单号：${o.orderNo}\n状态：${STATUS[o.status]}\n${o.trackNo?`快递单号：${o.trackNo}\n`:''}\n感谢您的惠顾！`;
+  try {
+    await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({chat_id: CHAT_ID, text: msg})
+    });
+    showToast('发货通知已发送！✅');
+  } catch(e) { showToast('发送失败，请检查网络'); }
+}
+
+// Add order from Telegram (called when new order comes in)
+function addNewOrder(orderData) {
+  orders.unshift(orderData);
+  saveOrders();
+  document.getElementById('orderCount').textContent = orders.length;
 }
 
 
