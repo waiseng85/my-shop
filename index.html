@@ -180,9 +180,9 @@ body{font-family:'Noto Sans SC',sans-serif;background:var(--bg);color:var(--text
     <div class="spacer-bottom"></div>
   </div>
   <div class="bottomnav">
-    <div class="bnav-item active" onclick="goPage('page-shop')"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="m3 9 9-7 9 7v11a2 2 0 0 0-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>首页</div>
-    <div class="bnav-item" onclick="goPage('page-cart')"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>购物车<div class="bnav-badge" id="navBadge">0</div></div>
-    <div class="bnav-item" onclick="goPage('page-auth')"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>我的</div>
+    <div class="bnav-item active" onclick="goPage('page-shop')"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="m3 9 9-7 9 7v11a2 2 0 0 0-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg><span class="nav-home">首页</span></div>
+    <div class="bnav-item" onclick="goPage('page-cart')"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg><span class="nav-cart">购物车</span><div class="bnav-badge" id="navBadge">0</div></div>
+    <div class="bnav-item" onclick="goPage('page-auth')"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><span class="nav-mine">我的</span></div>
   </div>
 </div>
 
@@ -215,9 +215,9 @@ body{font-family:'Noto Sans SC',sans-serif;background:var(--bg);color:var(--text
     <div class="spacer-bottom"></div>
   </div>
   <div class="bottomnav">
-    <div class="bnav-item" onclick="goPage('page-shop')"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="m3 9 9-7 9 7v11a2 2 0 0 0-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>首页</div>
-    <div class="bnav-item active" onclick="goPage('page-cart')"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>购物车</div>
-    <div class="bnav-item" onclick="goPage('page-auth')"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>我的</div>
+    <div class="bnav-item" onclick="goPage('page-shop')"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="m3 9 9-7 9 7v11a2 2 0 0 0-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg><span class="nav-home">首页</span></div>
+    <div class="bnav-item active" onclick="goPage('page-cart')"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg><span class="nav-cart">购物车</span></div>
+    <div class="bnav-item" onclick="goPage('page-auth')"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><span class="nav-mine">我的</span></div>
   </div>
 </div>
 
@@ -548,9 +548,10 @@ function renderCart() {
   list.innerHTML = items.map(([id,qty]) => {
     const p = allProducts.find(x => x.id == id);
     if (!p) return '';
+    const displayName = lang==='en' && p.name2 ? p.name2 : p.name;
     return `<div class="cart-item-row">
       <div class="cart-item-thumb">${p.img ? `<img src="${p.img}" alt="${p.name}">` : '🍪'}</div>
-      <div style="flex:1;"><div class="cart-item-name">${p.name}</div><div class="cart-item-price">RM${parseFloat(p.price).toFixed(2)} × ${qty}</div></div>
+      <div style="flex:1;"><div class="cart-item-name">${displayName}</div><div class="cart-item-price">RM${parseFloat(p.price).toFixed(2)} × ${qty}</div></div>
       <div class="qty" style="transform:scale(0.9);">
         <button class="qty-btn" onclick="changeQty('${id}',-1);renderCart()">−</button>
         <div class="qty-num">${qty}</div>
@@ -923,11 +924,10 @@ function toggleLang() {
   const cartTitle = document.querySelector('#page-cart .page-title');
   if (cartTitle) cartTitle.textContent = lang==='en' ? 'My Cart' : '购物车';
 
-  // Bottom nav
-  const shopNavItems = document.querySelectorAll('#page-shop .bnav-item');
-  if(shopNavItems[0]) shopNavItems[0].lastChild.textContent = lang==='en'?'Home':'首页';
-  if(shopNavItems[1]) shopNavItems[1].childNodes[shopNavItems[1].childNodes.length-2] && (shopNavItems[1].childNodes[0].nextSibling.textContent = lang==='en'?'Cart':'购物车');
-  if(shopNavItems[2]) shopNavItems[2].lastChild.textContent = lang==='en'?'Account':'我的';
+  // Bottom nav - update all pages
+  document.querySelectorAll('.nav-home').forEach(el => el.textContent = lang==='en'?'Home':'首页');
+  document.querySelectorAll('.nav-cart').forEach(el => el.textContent = lang==='en'?'Cart':'购物车');
+  document.querySelectorAll('.nav-mine').forEach(el => el.textContent = lang==='en'?'Account':'我的');
 
   // Cart page
   const cartPageTitle = document.querySelector('#page-cart .page-title');
