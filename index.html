@@ -278,10 +278,19 @@ body{font-family:'Noto Sans SC',sans-serif;background:var(--bg);color:var(--text
           </div>
         </div>
 
-        <div style="margin-top:12px;background:#E3F2FD;border-radius:10px;padding:10px 13px;font-size:11px;color:#1565C0;line-height:1.6;">
-          📤 付款后请将收据截图发送至 Telegram Bot：<br>
-          <strong>@Mtoday_bot</strong><br>
-          我们确认后将安排发货 🚚
+        <div style="margin-top:12px;background:#E8F5E9;border-radius:10px;padding:12px 13px;font-size:12px;color:#2E7D32;line-height:1.6;">
+          📸 付款后请在下方上传收据截图，我们确认后安排发货 🚚
+        </div>
+        <div style="margin-top:10px;">
+          <label style="font-size:12px;color:var(--text2);font-weight:500;display:block;margin-bottom:6px;">上传付款截图（必填）</label>
+          <div id="uploadArea" onclick="document.getElementById('receiptFile').click()" style="border:2px dashed var(--border);border-radius:10px;padding:20px;text-align:center;cursor:pointer;background:var(--bg);">
+            <div id="uploadText">
+              <div style="font-size:28px;margin-bottom:6px;">📷</div>
+              <div style="font-size:12px;color:var(--muted);">点击上传付款截图</div>
+            </div>
+            <img id="receiptPreview" style="display:none;width:100%;border-radius:8px;max-height:200px;object-fit:contain;">
+          </div>
+          <input type="file" id="receiptFile" accept="image/*" style="display:none;" onchange="previewReceipt(this)">
         </div>
       </div>
 
