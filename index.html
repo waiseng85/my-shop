@@ -772,13 +772,19 @@ renderProducts = function(list) {
     const emoji = EMOJIS[i % EMOJIS.length];
     const qty = cart[p.id] || 0;
     const oldPrice = p.old_price ? `<span class="item-oldprice">RM${parseFloat(p.old_price).toFixed(2)}</span>` : '';
-    const tagHtml = p.tag ? `<div class="tag ${p.tag==='BEST SELLER'?'tag-bs':p.tag==='新品'||p.tag==='New'?'tag-new':'tag-hot'}">${p.tag}</div>` : '';
+    // Translate tag
+    const tagMap = {'新品':'New','促销':'Sale','限定':'Limited','BEST SELLER':'BEST SELLER'};
+    const tagText = lang==='en' ? (tagMap[p.tag]||p.tag) : p.tag;
+    const tagHtml = p.tag ? `<div class="tag ${p.tag==='BEST SELLER'?'tag-bs':p.tag==='新品'||p.tag==='New'?'tag-new':'tag-hot'}">${tagText}</div>` : '';
+    // Show English name when in English mode
+    const displayName = lang==='en' && p.name2 ? p.name2 : p.name;
+    const displaySub = lang==='en' && p.name2 ? '' : p.name2;
     return `<div class="item-card" style="animation-delay:${i*0.04}s">
       <div class="item-img ${bg}">${p.img ? `<img src="${p.img}" alt="${p.name}">` : emoji}</div>
       <div class="item-info">
         ${tagHtml}
-        <div class="item-name">${p.name||''}</div>
-        <div class="item-sub">${p.name2||''}</div>
+        <div class="item-name">${displayName||''}</div>
+        <div class="item-sub">${displaySub||''}</div>
         <div class="item-price">${oldPrice}RM${parseFloat(p.price||0).toFixed(2)} <span>${t.per_box}</span></div>
         <div class="qty" id="qty-${p.id}">
           <button class="qty-btn" onclick="changeQty('${p.id}',-1)">−</button>
