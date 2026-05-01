@@ -138,6 +138,7 @@ body{font-family:'Noto Sans SC',sans-serif;background:var(--bg);color:var(--text
   <div class="topnav">
     <div class="logo"><div class="logo-circle">味</div><div class="logo-name">味香园</div></div>
     <div class="topnav-right">
+      <button class="btn-sm" id="langBtn" onclick="toggleLang()" style="border-color:var(--red);color:var(--red);">EN</button>
       <button class="btn-sm" id="loginBtnTop" onclick="goPage('page-auth')">登录/注册</button>
       <button class="icon-btn" onclick="goPage('page-cart')">
         <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="22" height="22"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
@@ -568,17 +569,43 @@ async function placeOrder() {
     });
   } catch(e) { console.log('msg error:', e); }
 
-  // Send receipt photo
+  // Send receipt photo - compress first
   try {
-    const formData = new FormData();
-    formData.append('chat_id', CHAT_ID);
-    formData.append('photo', receiptFile.files[0]);
-    formData.append('caption', `💳 付款截图 - 订单 ${orderNo}`);
-    await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`, {
-      method: 'POST',
-      body: formData
+    const file = receiptFile.files[0];
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    const img = new Image();
+    
+    await new Promise((resolve) => {
+      img.onload = resolve;
+      img.src = URL.createObjectURL(file);
     });
-  } catch(e) { console.log('photo error:', e); }
+    
+    // Resize to max 800px
+    const maxSize = 800;
+    let w = img.width, h = img.height;
+    if (w > maxSize || h > maxSize) {
+      if (w > h) { h = Math.round(h * maxSize / w); w = maxSize; }
+      else { w = Math.round(w * maxSize / h); h = maxSize; }
+    }
+    canvas.width = w;
+    canvas.height = h;
+    ctx.drawImage(img, 0, 0, w, h);
+    
+    await new Promise((resolve) => canvas.toBlob(async (blob) => {
+      const formData = new FormData();
+      formData.append('chat_id', CHAT_ID);
+      formData.append('photo', blob, 'receipt.jpg');
+      formData.append('caption', `💳 付款截图 - 订单 ${orderNo}`);
+      try {
+        await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`, {
+          method: 'POST',
+          body: formData
+        });
+      } catch(e) { console.log('photo error:', e); }
+      resolve();
+    }, 'image/jpeg', 0.7));
+  } catch(e) { console.log('compress error:', e); }
 
   btn.textContent = '确认订单 🎉';
   btn.disabled = false;
