@@ -685,6 +685,111 @@ function goBack() {
 
 function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2000);}
 
+
+// ===== LANGUAGE SYSTEM =====
+let lang = 'zh';
+const T = {
+  zh: {
+    login:'登录/注册', home:'首页', cart:'购物车', mine:'我的',
+    search:'搜索商品…', hero_title:'🎊 会员专属礼遇',
+    hero_sub:'注册即享 9 折优惠 · 满 RM50 免运费', hero_btn:'立即加入 →',
+    all_products:'全部商品', per_box:'/盒',
+    cats:['全部','促销 🔥','饼干糕点 🍪','即冲饮品 ☕','麻油/酱料 🫙','零食小吃 🍿','礼盒套装 🎁','新品上架 ✨'],
+    cart_title:'购物车', cart_clear:'清空', cart_empty:'购物车还是空的', cart_browse:'去逛逛',
+    subtotal:'商品小计', shipping:'运费', discount:'会员折扣', total:'合计', checkout_btn:'去结账 →', free:'免费',
+    upload_notice:'📸 付款后请在下方上传收据截图，我们确认后安排发货 🚚',
+    upload_label:'上传付款截图（必填）', upload_text:'点击上传付款截图',
+    confirm_btn:'确认订单 🎉', success_title:'订单已提交！',
+    success_msg:'付款截图已发送，我们确认后将安排发货！',
+    success_eta:'🚚 预计 2-5 个工作日送达', back_home:'返回首页',
+  },
+  en: {
+    login:'Login/Register', home:'Home', cart:'Cart', mine:'Account',
+    search:'Search products…', hero_title:'🎊 Member Exclusive Deals',
+    hero_sub:'Register for 10% off · Free shipping above RM50', hero_btn:'Join Now →',
+    all_products:'All Products', per_box:'/box',
+    cats:['All','Promo 🔥','Pastries 🍪','Beverages ☕','Sauces 🫙','Snacks 🍿','Gift Sets 🎁','New ✨'],
+    cart_title:'My Cart', cart_clear:'Clear', cart_empty:'Your cart is empty', cart_browse:'Browse',
+    subtotal:'Subtotal', shipping:'Shipping', discount:'Member Discount', total:'Total', checkout_btn:'Checkout →', free:'Free',
+    upload_notice:'📸 Please upload your payment receipt below. We will process your order once confirmed 🚚',
+    upload_label:'Upload Payment Screenshot (Required)', upload_text:'Tap to upload screenshot',
+    confirm_btn:'Confirm Order 🎉', success_title:'Order Submitted!',
+    success_msg:'Payment screenshot received. We will arrange delivery once confirmed!',
+    success_eta:'🚚 Estimated delivery: 2-5 working days', back_home:'Back to Home',
+  }
+};
+
+function toggleLang() {
+  lang = lang === 'zh' ? 'en' : 'zh';
+  const t = T[lang];
+  document.getElementById('langBtn').textContent = lang === 'zh' ? 'EN' : '中文';
+
+  // Top nav
+  if (!isLoggedIn) document.getElementById('loginBtnTop').textContent = t.login;
+
+  // Search
+  const searchInput = document.querySelector('.search-in input');
+  if (searchInput) searchInput.placeholder = t.search;
+
+  // Hero
+  const heroH2 = document.querySelector('.hero-content h2');
+  const heroP = document.querySelector('.hero-content p');
+  const heroBtn = document.querySelector('.hero-btn');
+  if (heroH2) heroH2.textContent = t.hero_title;
+  if (heroP) heroP.textContent = t.hero_sub;
+  if (heroBtn) heroBtn.textContent = t.hero_btn;
+
+  // Section title
+  const secTitle = document.querySelector('.sec-title');
+  if (secTitle) secTitle.textContent = t.all_products;
+
+  // Category tabs
+  const tabs = document.querySelectorAll('.cat-tab');
+  tabs.forEach((tab, i) => { if (t.cats[i]) tab.textContent = t.cats[i]; });
+
+  // Bottom nav labels
+  const bnavItems = document.querySelectorAll('#page-shop .bnav-item');
+  if (bnavItems[0]) bnavItems[0].childNodes[bnavItems[0].childNodes.length-1].textContent = t.home;
+  if (bnavItems[1]) bnavItems[1].childNodes[bnavItems[1].childNodes.length-1].textContent = t.cart;
+  if (bnavItems[2]) bnavItems[2].childNodes[bnavItems[2].childNodes.length-1].textContent = t.mine;
+
+  // Re-render products
+  renderProducts(allProducts);
+  showToast(lang === 'en' ? 'Switched to English 🇬🇧' : '已切换中文 🇨🇳');
+}
+
+// Patch renderProducts to support /box vs /盒
+const _origRenderProducts = renderProducts;
+renderProducts = function(list) {
+  const t = T[lang] || T['zh'];
+  const grid = document.getElementById('itemsGrid');
+  if (!list || list.length === 0) { 
+    grid.innerHTML = `<div class="empty-grid">${lang==='en'?'No products':'暂无商品'}</div>`; 
+    return; 
+  }
+  grid.innerHTML = list.map((p, i) => {
+    const bg = BKGS[i % BKGS.length];
+    const emoji = EMOJIS[i % EMOJIS.length];
+    const qty = cart[p.id] || 0;
+    const oldPrice = p.old_price ? `<span class="item-oldprice">RM${parseFloat(p.old_price).toFixed(2)}</span>` : '';
+    const tagHtml = p.tag ? `<div class="tag ${p.tag==='BEST SELLER'?'tag-bs':p.tag==='新品'||p.tag==='New'?'tag-new':'tag-hot'}">${p.tag}</div>` : '';
+    return `<div class="item-card" style="animation-delay:${i*0.04}s">
+      <div class="item-img ${bg}">${p.img ? `<img src="${p.img}" alt="${p.name}">` : emoji}</div>
+      <div class="item-info">
+        ${tagHtml}
+        <div class="item-name">${p.name||''}</div>
+        <div class="item-sub">${p.name2||''}</div>
+        <div class="item-price">${oldPrice}RM${parseFloat(p.price||0).toFixed(2)} <span>${t.per_box}</span></div>
+        <div class="qty" id="qty-${p.id}">
+          <button class="qty-btn" onclick="changeQty('${p.id}',-1)">−</button>
+          <div class="qty-num" id="qnum-${p.id}">${qty}</div>
+          <button class="qty-btn" onclick="changeQty('${p.id}',1)">+</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+};
+
 loadProducts();
 updateCartBadge();
 </script>
