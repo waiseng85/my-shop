@@ -278,10 +278,10 @@ body{font-family:'Noto Sans SC',sans-serif;background:var(--bg);color:var(--text
           </div>
         </div>
 
-        <div style="margin-top:12px;background:#FFF8E1;border-radius:10px;padding:10px 13px;font-size:11px;color:#8D6E00;line-height:1.6;">
-          ⚠️ 付款后请将收据截图发送至 WhatsApp：<br>
-          <strong>+60 XX-XXX XXXX</strong><br>
-          我们确认后将安排发货
+        <div style="margin-top:12px;background:#E3F2FD;border-radius:10px;padding:10px 13px;font-size:11px;color:#1565C0;line-height:1.6;">
+          📤 付款后请将收据截图发送至 Telegram Bot：<br>
+          <strong>@NG_STORE_bot</strong><br>
+          我们确认后将安排发货 🚚
         </div>
       </div>
 
@@ -508,19 +508,43 @@ function selectQR(type, el) {
   document.getElementById('qr-alipay').style.display = type === 'alipay' ? 'block' : 'none';
 }
 
-function placeOrder() {
+async function placeOrder() {
   const items = Object.entries(cart).filter(([id,qty]) => qty > 0);
   if (items.length === 0) { showToast('购物车是空的！'); return; }
+
+  const orderNo = '#' + Math.floor(Math.random()*900000+100000);
+  const sub = items.reduce((s,[id,qty]) => s + parseFloat(allProducts.find(x=>x.id==id)?.price||0)*qty, 0);
+  const ship = sub >= 50 ? 0 : 5;
+  const total = sub + ship;
+
+  // Build order message for Telegram
+  const itemLines = items.map(([id,qty]) => {
+    const p = allProducts.find(x=>x.id==id);
+    return `• ${p?.name||'商品'} x${qty} = RM${(parseFloat(p?.price||0)*qty).toFixed(2)}`;
+  }).join('\n');
+
+  const msg = `🛒 新订单通知！\n\n订单号：${orderNo}\n\n商品：\n${itemLines}\n\n小计：RM${sub.toFixed(2)}\n运费：${ship===0?'免费':'RM'+ship.toFixed(2)}\n💰 总计：RM${total.toFixed(2)}\n\n⏳ 等待顾客付款截图确认`;
+
+  // Send to Telegram Bot
+  try {
+    await fetch('https://api.telegram.org/bot8433865103:AAG_83Buzx_8d-eYfbMGGU4oBmS6Ml6VpZ0/sendMessage', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({chat_id:'8626843491', text: msg})
+    });
+  } catch(e) { console.log('Telegram error:', e); }
+
   document.getElementById('checkoutBody').innerHTML = `
     <div class="order-success">
       <div class="success-icon">🎉</div>
       <h2 style="font-family:'Noto Serif SC',serif;font-size:20px;">订单已提交！</h2>
-      <p style="font-size:13px;color:var(--muted);line-height:1.7;">请完成扫码付款并将收据截图发至 WhatsApp，我们确认后安排发货。</p>
+      <p style="font-size:13px;color:var(--muted);line-height:1.7;">请完成扫码付款，付款后将收据截图发送至 Telegram：<br><strong>@NG_STORE_bot</strong></p>
       <div style="background:#E8F5E9;border-radius:12px;padding:14px 20px;text-align:center;">
-        <div style="font-size:13px;color:var(--green);font-weight:600;">订单号：#${Math.floor(Math.random()*900000+100000)}</div>
+        <div style="font-size:13px;color:var(--green);font-weight:600;">订单号：${orderNo}</div>
         <div style="font-size:11px;color:var(--text2);margin-top:3px;">🚚 预计 2-5 个工作日送达</div>
       </div>
-      <button class="btn-primary" style="margin-top:10px;" onclick="afterOrder()">返回首页</button>
+      <a href="https://t.me/NG_STORE_bot" style="display:block;width:100%;padding:13px;background:#229ED9;color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:700;text-align:center;text-decoration:none;margin-top:10px;">📤 发送付款截图到 Telegram</a>
+      <button class="btn-primary" style="margin-top:10px;background:var(--red);" onclick="afterOrder()">返回首页</button>
     </div>`;
 }
 
