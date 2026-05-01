@@ -563,7 +563,7 @@ function renderCart() {
   const disc = isLoggedIn ? sub * 0.1 : 0;
   const total = sub + ship - disc;
   document.getElementById('sumSub').textContent = 'RM'+sub.toFixed(2);
-  document.getElementById('sumShip').textContent = deliveryMethod==='pickup'?'🏪 自取免运费':ship===0?'免费':'RM'+ship.toFixed(2);
+  document.getElementById('sumShip').textContent = deliveryMethod==='pickup'?(lang==='en'?'🏪 Free Pickup':'🏪 自取免运费'):ship===0?(lang==='en'?'Free':'免费'):'RM'+ship.toFixed(2);
   document.getElementById('sumDisc').textContent = '-RM'+disc.toFixed(2);
   document.getElementById('sumTotal').textContent = 'RM'+total.toFixed(2);
 }
@@ -923,8 +923,90 @@ function toggleLang() {
   const cartTitle = document.querySelector('#page-cart .page-title');
   if (cartTitle) cartTitle.textContent = lang==='en' ? 'My Cart' : '购物车';
 
+  // Bottom nav
+  const shopNavItems = document.querySelectorAll('#page-shop .bnav-item');
+  if(shopNavItems[0]) shopNavItems[0].lastChild.textContent = lang==='en'?'Home':'首页';
+  if(shopNavItems[1]) shopNavItems[1].childNodes[shopNavItems[1].childNodes.length-2] && (shopNavItems[1].childNodes[0].nextSibling.textContent = lang==='en'?'Cart':'购物车');
+  if(shopNavItems[2]) shopNavItems[2].lastChild.textContent = lang==='en'?'Account':'我的';
+
+  // Cart page
+  const cartPageTitle = document.querySelector('#page-cart .page-title');
+  if(cartPageTitle) cartPageTitle.textContent = lang==='en'?'My Cart':'购物车';
+  const cartClearBtn = document.querySelector('#page-cart .topnav button:last-child');
+  if(cartClearBtn) cartClearBtn.textContent = lang==='en'?'Clear':'清空';
+
+  // Cart summary labels
+  const cartRows = document.querySelectorAll('#page-cart .summary-row');
+  const cartLabels = [
+    {zh:'商品小计',en:'Subtotal'},
+    {zh:'运费',en:'Shipping'},
+    {zh:'会员折扣',en:'Member Discount'},
+    {zh:'合计',en:'Total'},
+  ];
+  cartRows.forEach((row,i)=>{
+    if(cartLabels[i]) row.firstElementChild.textContent = cartLabels[i][lang];
+  });
+
+  // Checkout summary labels
+  const coRows = document.querySelectorAll('#page-checkout .summary-row');
+  const coLabels = [
+    {zh:'商品合计',en:'Subtotal'},
+    {zh:'运费',en:'Shipping'},
+    {zh:'应付总额',en:'Total Amount'},
+  ];
+  coRows.forEach((row,i)=>{
+    if(coLabels[i]) row.firstElementChild.textContent = coLabels[i][lang];
+  });
+
+  // Upload section
+  const uploadLabel = document.querySelector('label[style*="display:flex"]');
+  if(uploadLabel) uploadLabel.childNodes[0].textContent = lang==='en'?'Upload Payment Screenshot (Required)':'上传付款截图（必填）';
+  const uploadText = document.getElementById('uploadText');
+  if(uploadText) {
+    const div = uploadText.querySelector('div:last-child');
+    if(div) div.textContent = lang==='en'?'Tap to upload screenshot':'点击上传付款截图';
+  }
+
+  // Upload notice
+  const uploadNotice = document.querySelector('[style*="E8F5E9"]');
+  if(uploadNotice) uploadNotice.textContent = lang==='en'?'📸 Please upload your payment receipt below. We will process your order once confirmed 🚚':'📸 付款后请在下方上传收据截图，我们确认后安排发货 🚚';
+
+  // Order summary title
+  document.querySelectorAll('.checkout-section h3').forEach(h=>{
+    if(h.textContent.includes('订单摘要')||h.textContent.includes('Order Summary')) h.textContent = lang==='en'?'🧾 Order Summary':'🧾 订单摘要';
+    if(h.textContent.includes('扫码付款')||h.textContent.includes('Scan to Pay')) h.textContent = lang==='en'?'💳 Scan to Pay':'💳 扫码付款';
+  });
+
+  // DuitNow instructions
+  const duitnowInstr = document.querySelector('#qr-duitnow .qr-instructions');
+  if(duitnowInstr) duitnowInstr.innerHTML = lang==='en'?
+    '1️⃣ Open any bank app or e-wallet<br>2️⃣ Scan the QR Code above<br>3️⃣ Enter the amount<br>4️⃣ Upload screenshot below after payment':
+    '1️⃣ 打开任何银行 App 或电子钱包<br>2️⃣ 扫描上方 QR Code<br>3️⃣ 输入应付金额<br>4️⃣ 完成付款后在下方上传截图';
+
+  const alipayInstr = document.querySelector('#qr-alipay .qr-instructions');
+  if(alipayInstr) alipayInstr.innerHTML = lang==='en'?
+    '1️⃣ Open Alipay / GCash / TrueMoney<br>2️⃣ Scan the QR Code above<br>3️⃣ Enter the amount<br>4️⃣ Upload screenshot below after payment':
+    '1️⃣ 打开 Alipay / GCash / TrueMoney<br>2️⃣ 扫描上方 QR Code<br>3️⃣ 输入应付金额<br>4️⃣ 完成付款后在下方上传截图';
+
+  // Checkout page title
+  const checkoutTitle = document.querySelector('#page-checkout .page-title');
+  if(checkoutTitle) checkoutTitle.textContent = lang==='en'?'Order Summary':'确认订单';
+
+  // Auth page
+  const authTabs = document.querySelectorAll('.auth-tab');
+  if(authTabs[0]) authTabs[0].textContent = lang==='en'?'Login':'登录';
+  if(authTabs[1]) authTabs[1].textContent = lang==='en'?'Register':'注册';
+
+  // Profile
+  const profileTitle = document.querySelector('#page-profile .page-title');
+  if(profileTitle) profileTitle.textContent = lang==='en'?'My Account':'个人中心';
+  const logoutBtn = document.querySelector('#page-profile .topnav button:last-child');
+  if(logoutBtn) logoutBtn.textContent = lang==='en'?'Logout':'退出';
+
   // Re-render products
   renderProducts(allProducts);
+  // Re-render cart if visible
+  if(currentPage === 'page-cart') renderCart();
   showToast(lang === 'en' ? 'Switched to English 🇬🇧' : '已切换中文 🇨🇳');
 }
 
