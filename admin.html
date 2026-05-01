@@ -1,0 +1,774 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>味香园 · 后台管理</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Noto+Serif+SC:wght@600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --red: #C8352A;
+  --gold: #D4920A;
+  --green: #2E7D32;
+  --blue: #1565C0;
+  --bg: #F4F6F9;
+  --card: #FFFFFF;
+  --text: #1C1C1E;
+  --text2: #6B7280;
+  --border: #E5E7EB;
+  --shadow: rgba(0,0,0,0.06);
+  --sidebar: #1C1410;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html,body{height:100%;font-family:'Noto Sans SC',sans-serif;background:var(--bg);color:var(--text);}
+
+/* ===== LOGIN ===== */
+#loginPage{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:24px;background:linear-gradient(135deg,#1C1410,#3D2B20);}
+.login-box{background:#fff;border-radius:20px;padding:32px 24px;width:100%;max-width:380px;box-shadow:0 20px 60px rgba(0,0,0,0.3);}
+.login-logo{text-align:center;margin-bottom:28px;}
+.login-logo-icon{width:64px;height:64px;background:linear-gradient(135deg,var(--red),#8B1A12);border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Noto Serif SC',serif;font-size:28px;color:#fff;font-weight:700;margin:0 auto 12px;box-shadow:0 4px 16px rgba(200,53,42,0.4);}
+.login-logo h2{font-family:'Noto Serif SC',serif;font-size:20px;color:var(--text);margin-bottom:4px;}
+.login-logo p{font-size:12px;color:var(--text2);}
+.form-group{margin-bottom:14px;}
+.form-label{font-size:12px;color:var(--text2);margin-bottom:6px;display:block;font-weight:500;}
+.form-input{width:100%;border:1.5px solid var(--border);border-radius:10px;padding:11px 14px;font-size:14px;font-family:'Noto Sans SC',sans-serif;color:var(--text);outline:none;transition:border-color 0.2s;}
+.form-input:focus{border-color:var(--red);}
+.btn-login{width:100%;padding:13px;background:linear-gradient(135deg,var(--red),#E8453A);color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;font-family:'Noto Sans SC',sans-serif;margin-top:6px;box-shadow:0 4px 14px rgba(200,53,42,0.4);transition:transform 0.15s;}
+.btn-login:hover{transform:scale(1.02);}
+.login-hint{text-align:center;font-size:11px;color:var(--text2);margin-top:14px;}
+
+/* ===== MAIN LAYOUT ===== */
+#adminPage{display:none;min-height:100vh;}
+.admin-wrap{display:flex;min-height:100vh;}
+
+/* SIDEBAR */
+.sidebar{width:220px;background:var(--sidebar);color:#fff;flex-shrink:0;display:flex;flex-direction:column;position:fixed;top:0;left:0;height:100vh;z-index:100;transition:transform 0.3s;}
+.sidebar-logo{padding:24px 20px 20px;border-bottom:1px solid rgba(255,255,255,0.08);}
+.sidebar-logo-icon{width:40px;height:40px;background:var(--red);border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Noto Serif SC',serif;font-size:18px;color:#fff;font-weight:700;margin-bottom:10px;}
+.sidebar-logo h2{font-family:'Noto Serif SC',serif;font-size:15px;color:#fff;margin-bottom:2px;}
+.sidebar-logo p{font-size:10px;color:rgba(255,255,255,0.45);}
+.sidebar-nav{flex:1;padding:16px 0;overflow-y:auto;}
+.nav-section{padding:8px 20px 4px;font-size:10px;color:rgba(255,255,255,0.3);letter-spacing:1px;font-weight:600;}
+.nav-item{display:flex;align-items:center;gap:10px;padding:11px 20px;cursor:pointer;transition:all 0.2s;font-size:13px;color:rgba(255,255,255,0.6);border-left:3px solid transparent;}
+.nav-item:hover{background:rgba(255,255,255,0.06);color:#fff;}
+.nav-item.active{background:rgba(200,53,42,0.2);color:#fff;border-left-color:var(--red);}
+.nav-item svg{width:17px;height:17px;flex-shrink:0;}
+.sidebar-footer{padding:16px 20px;border-top:1px solid rgba(255,255,255,0.08);}
+.admin-info{display:flex;align-items:center;gap:10px;}
+.admin-avatar{width:34px;height:34px;border-radius:50%;background:var(--red);display:flex;align-items:center;justify-content:center;font-size:14px;color:#fff;font-weight:700;flex-shrink:0;}
+.admin-name{font-size:12px;color:#fff;font-weight:600;}
+.admin-role{font-size:10px;color:rgba(255,255,255,0.4);}
+.logout-btn{background:none;border:none;color:rgba(255,255,255,0.4);cursor:pointer;font-size:11px;margin-top:10px;width:100%;text-align:left;padding:0;font-family:'Noto Sans SC',sans-serif;transition:color 0.2s;}
+.logout-btn:hover{color:#fff;}
+
+/* MOBILE SIDEBAR TOGGLE */
+.sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:99;}
+.sidebar-overlay.show{display:block;}
+@media(max-width:768px){
+  .sidebar{transform:translateX(-100%);}
+  .sidebar.open{transform:translateX(0);}
+  .main-content{margin-left:0!important;}
+}
+
+/* MAIN CONTENT */
+.main-content{margin-left:220px;flex:1;display:flex;flex-direction:column;min-height:100vh;}
+
+/* TOP BAR */
+.topbar{background:#fff;border-bottom:1px solid var(--border);padding:0 24px;height:56px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;box-shadow:0 1px 4px var(--shadow);}
+.topbar-left{display:flex;align-items:center;gap:12px;}
+.menu-toggle{background:none;border:none;cursor:pointer;padding:6px;display:flex;align-items:center;color:var(--text2);}
+.topbar-title{font-size:16px;font-weight:700;color:var(--text);}
+.topbar-right{display:flex;align-items:center;gap:10px;}
+.topbar-badge{background:var(--red);color:#fff;width:22px;height:22px;border-radius:50%;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;}
+
+/* CONTENT AREA */
+.content{padding:20px 24px;flex:1;}
+@media(max-width:600px){.content{padding:14px 14px;}}
+
+/* ===== SECTIONS ===== */
+.section{display:none;}
+.section.active{display:block;}
+
+/* ===== DASHBOARD ===== */
+.stats-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:20px;}
+@media(min-width:600px){.stats-grid{grid-template-columns:repeat(4,1fr);}}
+.stat-card{background:#fff;border-radius:14px;padding:16px;border:1px solid var(--border);box-shadow:0 2px 8px var(--shadow);}
+.stat-icon{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;margin-bottom:10px;}
+.stat-num{font-size:22px;font-weight:700;color:var(--text);font-family:'Noto Serif SC',serif;margin-bottom:3px;}
+.stat-label{font-size:11px;color:var(--text2);}
+.stat-change{font-size:10px;margin-top:4px;font-weight:600;}
+.stat-up{color:var(--green);}
+.stat-down{color:var(--red);}
+
+.dash-grid{display:grid;grid-template-columns:1fr;gap:14px;}
+@media(min-width:700px){.dash-grid{grid-template-columns:1fr 1fr;}}
+.dash-card{background:#fff;border-radius:14px;padding:18px;border:1px solid var(--border);box-shadow:0 2px 8px var(--shadow);}
+.dash-card-title{font-size:14px;font-weight:700;color:var(--text);margin-bottom:14px;display:flex;align-items:center;gap:6px;}
+.order-row{display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--border);font-size:12px;}
+.order-row:last-child{border-bottom:none;}
+.order-id{color:var(--text2);font-weight:500;}
+.order-name{color:var(--text);font-weight:600;}
+.order-price{color:var(--red);font-weight:700;}
+.status-badge{padding:2px 8px;border-radius:20px;font-size:10px;font-weight:700;}
+.status-paid{background:#E8F5E9;color:var(--green);}
+.status-pending{background:#FFF8E1;color:#F57F17;}
+.status-ship{background:#E3F2FD;color:var(--blue);}
+
+/* ===== PRODUCTS ===== */
+.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px;}
+.btn-add{background:var(--red);color:#fff;border:none;padding:9px 16px;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Noto Sans SC',sans-serif;display:flex;align-items:center;gap:6px;transition:transform 0.15s;box-shadow:0 3px 10px rgba(200,53,42,0.3);}
+.btn-add:hover{transform:scale(1.03);}
+.search-bar{background:#fff;border:1.5px solid var(--border);border-radius:10px;display:flex;align-items:center;padding:8px 13px;gap:8px;flex:1;max-width:260px;}
+.search-bar input{border:none;background:transparent;font-size:13px;color:var(--text);width:100%;outline:none;font-family:'Noto Sans SC',sans-serif;}
+
+.products-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;}
+@media(min-width:600px){.products-grid{grid-template-columns:repeat(3,1fr);}}
+@media(min-width:900px){.products-grid{grid-template-columns:repeat(4,1fr);}}
+
+.prod-card{background:#fff;border-radius:13px;overflow:hidden;border:1px solid var(--border);box-shadow:0 2px 8px var(--shadow);transition:transform 0.2s;}
+.prod-card:hover{transform:translateY(-2px);}
+.prod-img{width:100%;height:110px;display:flex;align-items:center;justify-content:center;font-size:44px;position:relative;}
+.prod-img img{width:100%;height:100%;object-fit:cover;}
+.prod-status{position:absolute;top:7px;right:7px;padding:2px 7px;border-radius:20px;font-size:9px;font-weight:700;}
+.prod-on{background:#E8F5E9;color:var(--green);}
+.prod-off{background:#FFEBEE;color:var(--red);}
+.prod-info{padding:10px;}
+.prod-name{font-size:12px;font-weight:700;color:var(--text);margin-bottom:3px;line-height:1.4;}
+.prod-cat{font-size:10px;color:var(--text2);margin-bottom:5px;}
+.prod-price{font-size:14px;font-weight:700;color:var(--red);margin-bottom:8px;}
+.prod-actions{display:flex;gap:6px;}
+.btn-edit{flex:1;padding:6px;background:var(--blue);color:#fff;border:none;border-radius:7px;font-size:11px;font-weight:600;cursor:pointer;font-family:'Noto Sans SC',sans-serif;}
+.btn-del{padding:6px 10px;background:#FFEBEE;color:var(--red);border:none;border-radius:7px;font-size:11px;font-weight:600;cursor:pointer;font-family:'Noto Sans SC',sans-serif;}
+
+/* ===== MODAL ===== */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:200;align-items:flex-end;justify-content:center;}
+.modal-overlay.show{display:flex;}
+@media(min-width:600px){.modal-overlay{align-items:center;}}
+.modal{background:#fff;border-radius:20px 20px 0 0;width:100%;max-width:500px;max-height:90vh;overflow-y:auto;padding:24px;}
+@media(min-width:600px){.modal{border-radius:20px;margin:20px;}}
+.modal-title{font-size:16px;font-weight:700;color:var(--text);margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;}
+.modal-close{background:none;border:none;font-size:22px;cursor:pointer;color:var(--text2);line-height:1;}
+.img-upload{width:100%;height:130px;border:2px dashed var(--border);border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;margin-bottom:14px;transition:border-color 0.2s;position:relative;overflow:hidden;}
+.img-upload:hover{border-color:var(--red);}
+.img-upload-preview{width:100%;height:100%;object-fit:cover;position:absolute;inset:0;}
+.img-upload-text{font-size:12px;color:var(--text2);text-align:center;z-index:1;}
+.img-upload-icon{font-size:28px;margin-bottom:6px;}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.form-select{width:100%;border:1.5px solid var(--border);border-radius:10px;padding:10px 13px;font-size:13px;font-family:'Noto Sans SC',sans-serif;color:var(--text);outline:none;transition:border-color 0.2s;background:#fff;appearance:none;}
+.form-select:focus{border-color:var(--red);}
+.toggle-wrap{display:flex;align-items:center;justify-content:space-between;padding:10px 0;}
+.toggle-label{font-size:13px;font-weight:500;color:var(--text);}
+.toggle{width:44px;height:24px;background:var(--border);border-radius:12px;cursor:pointer;position:relative;transition:background 0.2s;}
+.toggle.on{background:var(--green);}
+.toggle-dot{width:18px;height:18px;background:#fff;border-radius:50%;position:absolute;top:3px;left:3px;transition:left 0.2s;box-shadow:0 1px 4px rgba(0,0,0,0.2);}
+.toggle.on .toggle-dot{left:23px;}
+.btn-save{width:100%;padding:13px;background:linear-gradient(135deg,var(--red),#E8453A);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;font-family:'Noto Sans SC',sans-serif;margin-top:6px;box-shadow:0 4px 12px rgba(200,53,42,0.35);}
+
+/* ===== ORDERS ===== */
+.orders-list{display:flex;flex-direction:column;gap:10px;}
+.order-card{background:#fff;border-radius:13px;padding:14px;border:1px solid var(--border);box-shadow:0 2px 8px var(--shadow);}
+.order-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+.order-no{font-size:13px;font-weight:700;color:var(--text);}
+.order-date{font-size:11px;color:var(--text2);}
+.order-items{font-size:12px;color:var(--text2);margin-bottom:10px;line-height:1.6;}
+.order-foot{display:flex;align-items:center;justify-content:space-between;}
+.order-total{font-size:15px;font-weight:700;color:var(--red);}
+.btn-status{padding:5px 12px;border-radius:20px;font-size:11px;font-weight:700;border:none;cursor:pointer;font-family:'Noto Sans SC',sans-serif;}
+.btn-status-pending{background:#FFF8E1;color:#F57F17;}
+.btn-status-paid{background:#E8F5E9;color:var(--green);}
+.btn-status-ship{background:#E3F2FD;color:var(--blue);}
+.btn-status-done{background:#F3E5F5;color:#7B1FA2;}
+
+/* ===== SETTINGS ===== */
+.settings-section{background:#fff;border-radius:14px;padding:18px;border:1px solid var(--border);margin-bottom:14px;box-shadow:0 2px 8px var(--shadow);}
+.settings-title{font-size:14px;font-weight:700;color:var(--text);margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid var(--border);}
+
+/* ===== TOAST ===== */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:#1C1410;color:#fff;padding:10px 20px;border-radius:20px;font-size:12px;font-weight:500;opacity:0;transition:all 0.3s;z-index:999;white-space:nowrap;}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+/* ===== UTILS ===== */
+.gap-stack{display:flex;flex-direction:column;gap:10px;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+.prod-card{animation:fadeIn 0.3s ease both;}
+</style>
+</head>
+<body>
+
+<!-- ===== LOGIN PAGE ===== -->
+<div id="loginPage">
+  <div class="login-box">
+    <div class="login-logo">
+      <div class="login-logo-icon">味</div>
+      <h2>味香园后台管理</h2>
+      <p>Admin Dashboard · 请登录您的管理员账号</p>
+    </div>
+    <div class="form-group">
+      <label class="form-label">账号</label>
+      <input class="form-input" id="adminUser" type="text" placeholder="admin" value="admin">
+    </div>
+    <div class="form-group">
+      <label class="form-label">密码</label>
+      <input class="form-input" id="adminPass" type="password" placeholder="••••••••" value="123456">
+    </div>
+    <button class="btn-login" onclick="doAdminLogin()">登录后台</button>
+    <div class="login-hint">默认账号：admin　密码：123456</div>
+  </div>
+</div>
+
+<!-- ===== ADMIN PAGE ===== -->
+<div id="adminPage">
+  <div class="admin-wrap">
+
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+      <div class="sidebar-logo">
+        <div class="sidebar-logo-icon">味</div>
+        <h2>味香园</h2>
+        <p>后台管理系统</p>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="nav-section">主菜单</div>
+        <div class="nav-item active" onclick="showSection('dashboard',this)">
+          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+          数据总览
+        </div>
+        <div class="nav-item" onclick="showSection('products',this)">
+          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+          商品管理
+        </div>
+        <div class="nav-item" onclick="showSection('orders',this)">
+          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          订单管理
+        </div>
+        <div class="nav-section">系统</div>
+        <div class="nav-item" onclick="showSection('settings',this)">
+          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+          系统设置
+        </div>
+        <div class="nav-item" onclick="window.open('https://waiseng85.github.io/my-shop','_blank')">
+          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+          查看前台
+        </div>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="admin-info">
+          <div class="admin-avatar">A</div>
+          <div><div class="admin-name">管理员</div><div class="admin-role">超级管理员</div></div>
+        </div>
+        <button class="logout-btn" onclick="doLogout()">⬡ 退出登录</button>
+      </div>
+    </div>
+
+    <!-- Overlay -->
+    <div class="sidebar-overlay" id="overlay" onclick="closeSidebar()"></div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+      <!-- Top Bar -->
+      <div class="topbar">
+        <div class="topbar-left">
+          <button class="menu-toggle" onclick="toggleSidebar()">
+            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+          </button>
+          <div class="topbar-title" id="topbarTitle">数据总览</div>
+        </div>
+        <div class="topbar-right">
+          <span style="font-size:12px;color:var(--text2);">新订单</span>
+          <div class="topbar-badge" id="orderBadge">3</div>
+        </div>
+      </div>
+
+      <!-- Content -->
+      <div class="content">
+
+        <!-- ===== DASHBOARD ===== -->
+        <div class="section active" id="sec-dashboard">
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-icon" style="background:#FFF3E0;">📦</div>
+              <div class="stat-num" id="stat-products">16</div>
+              <div class="stat-label">商品总数</div>
+              <div class="stat-change stat-up">↑ 上架中</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon" style="background:#E8F5E9;">💰</div>
+              <div class="stat-num" id="stat-revenue">RM0</div>
+              <div class="stat-label">本月营收</div>
+              <div class="stat-change stat-up">↑ 累计订单</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon" style="background:#E3F2FD;">🛒</div>
+              <div class="stat-num" id="stat-orders">0</div>
+              <div class="stat-label">订单总数</div>
+              <div class="stat-change stat-up">↑ 待处理</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon" style="background:#FCE4EC;">👥</div>
+              <div class="stat-num">0</div>
+              <div class="stat-label">注册会员</div>
+              <div class="stat-change stat-up">↑ 本月新增</div>
+            </div>
+          </div>
+
+          <div class="dash-grid">
+            <div class="dash-card">
+              <div class="dash-card-title">📋 最新订单</div>
+              <div id="dashOrders">
+                <div style="text-align:center;padding:20px;color:var(--text2);font-size:13px;">暂无订单</div>
+              </div>
+            </div>
+            <div class="dash-card">
+              <div class="dash-card-title">🔥 热销商品 Top 5</div>
+              <div id="dashTop5">
+                <div style="text-align:center;padding:20px;color:var(--text2);font-size:13px;">添加商品后显示</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ===== PRODUCTS ===== -->
+        <div class="section" id="sec-products">
+          <div class="section-header">
+            <div class="search-bar">
+              <svg width="14" height="14" fill="none" stroke="#9CA3AF" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+              <input type="text" placeholder="搜索商品…" oninput="filterProducts(this.value)">
+            </div>
+            <button class="btn-add" onclick="openAddProduct()">
+              <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              添加商品
+            </button>
+          </div>
+          <div class="products-grid" id="productsGrid"></div>
+        </div>
+
+        <!-- ===== ORDERS ===== -->
+        <div class="section" id="sec-orders">
+          <div class="section-header">
+            <div style="font-size:13px;color:var(--text2);">共 <span id="orderCount">0</span> 笔订单</div>
+            <button class="btn-add" onclick="addDemoOrder()">
+              ＋ 模拟新订单
+            </button>
+          </div>
+          <div class="orders-list" id="ordersList">
+            <div style="text-align:center;padding:40px;color:var(--text2);font-size:13px;background:#fff;border-radius:14px;border:1px solid var(--border);">暂无订单记录</div>
+          </div>
+        </div>
+
+        <!-- ===== SETTINGS ===== -->
+        <div class="section" id="sec-settings">
+          <div class="settings-section">
+            <div class="settings-title">🏪 店铺基本信息</div>
+            <div class="form-group"><label class="form-label">店铺名称</label><input class="form-input" value="味香园" id="shopName"></div>
+            <div class="form-group"><label class="form-label">店铺简介</label><input class="form-input" value="槟城正宗传统饼家" id="shopDesc"></div>
+            <div class="form-group"><label class="form-label">联系电话</label><input class="form-input" placeholder="+60 4-XXX XXXX" id="shopPhone"></div>
+            <div class="form-group"><label class="form-label">营业地址</label><input class="form-input" placeholder="请输入店铺地址" id="shopAddr"></div>
+            <button class="btn-save" onclick="saveSettings()">保存设置</button>
+          </div>
+          <div class="settings-section">
+            <div class="settings-title">🚚 运费设置</div>
+            <div class="form-row">
+              <div class="form-group"><label class="form-label">基础运费 (RM)</label><input class="form-input" value="5.00" type="number" id="shipFee"></div>
+              <div class="form-group"><label class="form-label">免运费门槛 (RM)</label><input class="form-input" value="50.00" type="number" id="shipFree"></div>
+            </div>
+            <button class="btn-save" onclick="saveSettings()">保存设置</button>
+          </div>
+          <div class="settings-section">
+            <div class="settings-title">🔑 修改管理员密码</div>
+            <div class="form-group"><label class="form-label">当前密码</label><input class="form-input" type="password" placeholder="输入当前密码"></div>
+            <div class="form-group"><label class="form-label">新密码</label><input class="form-input" type="password" placeholder="输入新密码"></div>
+            <div class="form-group"><label class="form-label">确认新密码</label><input class="form-input" type="password" placeholder="再次输入新密码"></div>
+            <button class="btn-save" onclick="saveSettings()">修改密码</button>
+          </div>
+        </div>
+
+      </div><!-- /content -->
+    </div><!-- /main-content -->
+  </div><!-- /admin-wrap -->
+</div><!-- /adminPage -->
+
+<!-- ===== PRODUCT MODAL ===== -->
+<div class="modal-overlay" id="productModal">
+  <div class="modal">
+    <div class="modal-title">
+      <span id="modalTitle">添加商品</span>
+      <button class="modal-close" onclick="closeModal()">×</button>
+    </div>
+
+    <!-- Image Upload -->
+    <div class="img-upload" onclick="triggerImageUpload()">
+      <img id="imgPreview" class="img-upload-preview" style="display:none;">
+      <div class="img-upload-text" id="imgUploadText">
+        <div class="img-upload-icon">🖼</div>
+        <div>点击上传商品图片</div>
+        <div style="font-size:10px;margin-top:3px;color:#9CA3AF;">支持 JPG、PNG 格式</div>
+      </div>
+    </div>
+    <input type="file" id="imgFileInput" accept="image/*" style="display:none;" onchange="previewImage(this)">
+
+    <div class="form-group">
+      <label class="form-label">商品名称（中文）</label>
+      <input class="form-input" id="pName" placeholder="例：小豆沙饼">
+    </div>
+    <div class="form-group">
+      <label class="form-label">商品名称（英文/备注）</label>
+      <input class="form-input" id="pName2" placeholder="例：Tau Sar Pneah 16pcs">
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">售价 (RM)</label>
+        <input class="form-input" id="pPrice" type="number" placeholder="12.90" step="0.10">
+      </div>
+      <div class="form-group">
+        <label class="form-label">原价 (RM，选填)</label>
+        <input class="form-input" id="pOldPrice" type="number" placeholder="16.90" step="0.10">
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">商品分类</label>
+      <select class="form-select" id="pCat">
+        <option value="pastry">饼干糕点</option>
+        <option value="drinks">即冲饮品</option>
+        <option value="sauce">麻油/酱料</option>
+        <option value="snack">零食小吃</option>
+        <option value="gift">礼盒套装</option>
+        <option value="promo">促销商品</option>
+        <option value="new">新品上架</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">商品标签（选填）</label>
+      <select class="form-select" id="pTag">
+        <option value="">无标签</option>
+        <option value="BEST SELLER">🏆 Best Seller</option>
+        <option value="新品">✨ 新品</option>
+        <option value="促销">🔥 促销</option>
+        <option value="限定">🎁 限定</option>
+      </select>
+    </div>
+    <div class="toggle-wrap">
+      <span class="toggle-label">上架状态</span>
+      <div class="toggle on" id="pStatusToggle" onclick="this.classList.toggle('on')">
+        <div class="toggle-dot"></div>
+      </div>
+    </div>
+    <button class="btn-save" onclick="saveProduct()">保存商品</button>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ===== DATA =====
+let products = JSON.parse(localStorage.getItem('wxy_products') || 'null') || [
+  {id:1,name:'小豆沙饼 STSP',name2:'Small Tau Sar Pneah (16pcs)',price:12.90,oldPrice:null,cat:'pastry',tag:'BEST SELLER',on:true,img:'',emoji:'🍪'},
+  {id:2,name:'豆沙饼 TSP',name2:'Tau Sar Pneah (12pcs)',price:14.90,oldPrice:null,cat:'pastry',tag:'',on:true,img:'',emoji:'🥮'},
+  {id:3,name:'香饼 HP',name2:'Hneoh Pneah (16pcs)',price:14.90,oldPrice:null,cat:'pastry',tag:'',on:true,img:'',emoji:'🍘'},
+  {id:4,name:'纯白咖啡',name2:'Pure White Coffee',price:18.50,oldPrice:22.50,cat:'drinks',tag:'新品',on:true,img:'',emoji:'☕'},
+  {id:5,name:'凤梨饼礼盒',name2:'Pineapple Shortcake Gift Set',price:77.60,oldPrice:116.40,cat:'gift',tag:'促销',on:true,img:'',emoji:'🍍'},
+];
+let orders = JSON.parse(localStorage.getItem('wxy_orders') || '[]');
+let editingId = null;
+const EMOJIS = ['🍪','🥮','🍘','☕','🍵','🧋','🍍','🫘','🌶️','🎁','🫙','🥠','🌿','🍫','🫖','🍬'];
+
+// ===== AUTH =====
+function doAdminLogin() {
+  const u = document.getElementById('adminUser').value;
+  const p = document.getElementById('adminPass').value;
+  if (u === 'admin' && p === '123456') {
+    document.getElementById('loginPage').style.display = 'none';
+    document.getElementById('adminPage').style.display = 'block';
+    renderProducts();
+    renderOrders();
+    updateDashboard();
+    showToast('欢迎回来，管理员！');
+  } else {
+    showToast('账号或密码错误！');
+  }
+}
+
+function doLogout() {
+  document.getElementById('adminPage').style.display = 'none';
+  document.getElementById('loginPage').style.display = 'flex';
+}
+
+// ===== SIDEBAR =====
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('overlay').classList.toggle('show');
+}
+function closeSidebar() {
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('overlay').classList.remove('show');
+}
+
+// ===== NAVIGATION =====
+const titles = {dashboard:'数据总览',products:'商品管理',orders:'订单管理',settings:'系统设置'};
+function showSection(id, el) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('sec-' + id).classList.add('active');
+  if (el) el.classList.add('active');
+  document.getElementById('topbarTitle').textContent = titles[id];
+  closeSidebar();
+  if (id === 'products') renderProducts();
+  if (id === 'orders') renderOrders();
+  if (id === 'dashboard') updateDashboard();
+}
+
+// ===== PRODUCTS =====
+function saveData() {
+  localStorage.setItem('wxy_products', JSON.stringify(products));
+  localStorage.setItem('wxy_orders', JSON.stringify(orders));
+}
+
+function renderProducts(filter = '') {
+  const grid = document.getElementById('productsGrid');
+  const list = filter ? products.filter(p => p.name.includes(filter) || p.name2.includes(filter)) : products;
+  grid.innerHTML = list.map((p, i) => `
+    <div class="prod-card" style="animation-delay:${i*0.04}s">
+      <div class="prod-img" style="background:${getBg(i)}">
+        ${p.img ? `<img src="${p.img}" alt="${p.name}">` : p.emoji || EMOJIS[i % EMOJIS.length]}
+        <div class="prod-status ${p.on ? 'prod-on' : 'prod-off'}">${p.on ? '上架' : '下架'}</div>
+      </div>
+      <div class="prod-info">
+        <div class="prod-name">${p.name}</div>
+        <div class="prod-cat">${getCatName(p.cat)} ${p.tag ? '· ' + p.tag : ''}</div>
+        <div class="prod-price">RM${p.price.toFixed(2)}${p.oldPrice ? ` <span style="font-size:10px;color:var(--text2);text-decoration:line-through;font-weight:400;">RM${p.oldPrice.toFixed(2)}</span>` : ''}</div>
+        <div class="prod-actions">
+          <button class="btn-edit" onclick="openEditProduct(${p.id})">✏️ 编辑</button>
+          <button class="btn-del" onclick="deleteProduct(${p.id})">🗑</button>
+        </div>
+      </div>
+    </div>`).join('');
+  document.getElementById('stat-products').textContent = products.length;
+}
+
+function filterProducts(v) { renderProducts(v); }
+
+function getBg(i) {
+  const bgs = ['linear-gradient(135deg,#FFF8E1,#FFE082)','linear-gradient(135deg,#FCE4EC,#F8BBD0)','linear-gradient(135deg,#E8F5E9,#A5D6A7)','linear-gradient(135deg,#E3F2FD,#90CAF9)','linear-gradient(135deg,#FFF3E0,#FFCC80)','linear-gradient(135deg,#E0F2F1,#80CBC4)','linear-gradient(135deg,#FFEBEE,#EF9A9A)','linear-gradient(135deg,#EFEBE9,#BCAAA4)'];
+  return bgs[i % bgs.length];
+}
+
+function getCatName(cat) {
+  const m = {pastry:'饼干糕点',drinks:'即冲饮品',sauce:'麻油/酱料',snack:'零食小吃',gift:'礼盒套装',promo:'促销',new:'新品'};
+  return m[cat] || cat;
+}
+
+function openAddProduct() {
+  editingId = null;
+  document.getElementById('modalTitle').textContent = '添加商品';
+  document.getElementById('pName').value = '';
+  document.getElementById('pName2').value = '';
+  document.getElementById('pPrice').value = '';
+  document.getElementById('pOldPrice').value = '';
+  document.getElementById('pCat').value = 'pastry';
+  document.getElementById('pTag').value = '';
+  document.getElementById('pStatusToggle').classList.add('on');
+  document.getElementById('imgPreview').style.display = 'none';
+  document.getElementById('imgUploadText').style.display = 'flex';
+  document.getElementById('imgPreview').src = '';
+  document.getElementById('productModal').classList.add('show');
+}
+
+function openEditProduct(id) {
+  editingId = id;
+  const p = products.find(x => x.id === id);
+  document.getElementById('modalTitle').textContent = '编辑商品';
+  document.getElementById('pName').value = p.name;
+  document.getElementById('pName2').value = p.name2;
+  document.getElementById('pPrice').value = p.price;
+  document.getElementById('pOldPrice').value = p.oldPrice || '';
+  document.getElementById('pCat').value = p.cat;
+  document.getElementById('pTag').value = p.tag || '';
+  if (p.on) document.getElementById('pStatusToggle').classList.add('on');
+  else document.getElementById('pStatusToggle').classList.remove('on');
+  if (p.img) {
+    document.getElementById('imgPreview').src = p.img;
+    document.getElementById('imgPreview').style.display = 'block';
+    document.getElementById('imgUploadText').style.display = 'none';
+  } else {
+    document.getElementById('imgPreview').style.display = 'none';
+    document.getElementById('imgUploadText').style.display = 'flex';
+  }
+  document.getElementById('productModal').classList.add('show');
+}
+
+function saveProduct() {
+  const name = document.getElementById('pName').value.trim();
+  const price = parseFloat(document.getElementById('pPrice').value);
+  if (!name || isNaN(price)) { showToast('请填写商品名称和价格！'); return; }
+  const p = {
+    id: editingId || Date.now(),
+    name,
+    name2: document.getElementById('pName2').value.trim(),
+    price,
+    oldPrice: parseFloat(document.getElementById('pOldPrice').value) || null,
+    cat: document.getElementById('pCat').value,
+    tag: document.getElementById('pTag').value,
+    on: document.getElementById('pStatusToggle').classList.contains('on'),
+    img: document.getElementById('imgPreview').src || '',
+    emoji: EMOJIS[Math.floor(Math.random() * EMOJIS.length)],
+  };
+  if (editingId) {
+    const idx = products.findIndex(x => x.id === editingId);
+    products[idx] = p;
+    showToast('商品已更新！✅');
+  } else {
+    products.push(p);
+    showToast('商品添加成功！✅');
+  }
+  saveData();
+  closeModal();
+  renderProducts();
+  updateDashboard();
+}
+
+function deleteProduct(id) {
+  if (!confirm('确定删除这个商品吗？')) return;
+  products = products.filter(p => p.id !== id);
+  saveData();
+  renderProducts();
+  updateDashboard();
+  showToast('商品已删除');
+}
+
+function closeModal() {
+  document.getElementById('productModal').classList.remove('show');
+}
+
+function triggerImageUpload() {
+  document.getElementById('imgFileInput').click();
+}
+
+function previewImage(input) {
+  if (!input.files || !input.files[0]) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const img = document.getElementById('imgPreview');
+    img.src = e.target.result;
+    img.style.display = 'block';
+    document.getElementById('imgUploadText').style.display = 'none';
+  };
+  reader.readAsDataURL(input.files[0]);
+}
+
+// ===== ORDERS =====
+const statusList = ['待付款','已付款','已发货','已完成'];
+const statusClass = ['btn-status-pending','btn-status-paid','btn-status-ship','btn-status-done'];
+
+function addDemoOrder() {
+  const items = products.slice(0, Math.floor(Math.random()*3)+1);
+  const total = items.reduce((s,p) => s + p.price, 0);
+  const order = {
+    id: '#' + Math.floor(Math.random()*900000+100000),
+    date: new Date().toLocaleDateString('zh-CN'),
+    items: items.map(p => p.name).join('、'),
+    total: total.toFixed(2),
+    status: 0,
+    customer: ['张小明','李美玲','王大华','陈美丽'][Math.floor(Math.random()*4)],
+  };
+  orders.unshift(order);
+  saveData();
+  renderOrders();
+  updateDashboard();
+  document.getElementById('orderBadge').textContent = orders.filter(o=>o.status===0).length;
+  showToast('新订单已添加！🛒');
+}
+
+function renderOrders() {
+  const list = document.getElementById('ordersList');
+  document.getElementById('orderCount').textContent = orders.length;
+  if (orders.length === 0) {
+    list.innerHTML = '<div style="text-align:center;padding:40px;color:var(--text2);font-size:13px;background:#fff;border-radius:14px;border:1px solid var(--border);">暂无订单记录</div>';
+    return;
+  }
+  list.innerHTML = orders.map((o, i) => `
+    <div class="order-card">
+      <div class="order-head">
+        <div>
+          <div class="order-no">${o.id} · ${o.customer}</div>
+          <div class="order-date">${o.date}</div>
+        </div>
+        <button class="${statusClass[o.status]} btn-status" onclick="cycleStatus(${i})">${statusList[o.status]}</button>
+      </div>
+      <div class="order-items">🛍 ${o.items}</div>
+      <div class="order-foot">
+        <div class="order-total">RM ${o.total}</div>
+        <button class="btn-del" onclick="deleteOrder(${i})">删除</button>
+      </div>
+    </div>`).join('');
+}
+
+function cycleStatus(i) {
+  orders[i].status = (orders[i].status + 1) % 4;
+  saveData();
+  renderOrders();
+  document.getElementById('orderBadge').textContent = orders.filter(o=>o.status===0).length || 0;
+  showToast('订单状态已更新');
+}
+
+function deleteOrder(i) {
+  if (!confirm('确定删除此订单？')) return;
+  orders.splice(i, 1);
+  saveData();
+  renderOrders();
+  updateDashboard();
+  showToast('订单已删除');
+}
+
+// ===== DASHBOARD =====
+function updateDashboard() {
+  document.getElementById('stat-products').textContent = products.length;
+  document.getElementById('stat-orders').textContent = orders.length;
+  const rev = orders.reduce((s,o) => s + parseFloat(o.total), 0);
+  document.getElementById('stat-revenue').textContent = 'RM' + rev.toFixed(0);
+
+  // Recent orders
+  const dashOrders = document.getElementById('dashOrders');
+  if (orders.length === 0) {
+    dashOrders.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text2);font-size:13px;">暂无订单</div>';
+  } else {
+    dashOrders.innerHTML = orders.slice(0,5).map(o => `
+      <div class="order-row">
+        <div><div class="order-name">${o.customer}</div><div class="order-id">${o.id}</div></div>
+        <div style="text-align:right"><div class="order-price">RM${o.total}</div><span class="status-badge ${['status-pending','status-paid','status-ship','status-paid'][o.status]}">${statusList[o.status]}</span></div>
+      </div>`).join('');
+  }
+
+  // Top 5
+  const top5 = document.getElementById('dashTop5');
+  if (products.length === 0) {
+    top5.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text2);font-size:13px;">添加商品后显示</div>';
+  } else {
+    top5.innerHTML = products.slice(0,5).map((p,i) => `
+      <div class="order-row">
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span style="font-size:16px;">${p.emoji||'🍪'}</span>
+          <div><div style="font-size:12px;font-weight:600;">${p.name}</div><div style="font-size:10px;color:var(--text2);">${getCatName(p.cat)}</div></div>
+        </div>
+        <div style="font-size:13px;font-weight:700;color:var(--red);">RM${p.price.toFixed(2)}</div>
+      </div>`).join('');
+  }
+}
+
+// ===== SETTINGS =====
+function saveSettings() { showToast('设置已保存！✅'); }
+
+// ===== TOAST =====
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+// Enter key login
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && document.getElementById('loginPage').style.display !== 'none') doAdminLogin();
+});
+</script>
+</body>
+</html>
