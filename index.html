@@ -862,6 +862,67 @@ function toggleLang() {
   if (bnavItems[1]) bnavItems[1].childNodes[bnavItems[1].childNodes.length-1].textContent = t.cart;
   if (bnavItems[2]) bnavItems[2].childNodes[bnavItems[2].childNodes.length-1].textContent = t.mine;
 
+  // Delivery method section
+  const deliveryTitle = document.querySelector('.checkout-section h3');
+  if (deliveryTitle) deliveryTitle.textContent = lang==='en' ? '🚀 Delivery Method' : '🚀 配送方式';
+
+  const optDelivery = document.getElementById('opt-delivery');
+  if (optDelivery) optDelivery.innerHTML = `
+    <div style="font-size:28px;margin-bottom:6px;">🚚</div>
+    <div style="font-size:13px;font-weight:700;">${lang==='en'?'Delivery':'邮寄送货'}</div>
+    <div style="font-size:10px;color:var(--muted);margin-top:3px;">${lang==='en'?'RM5 shipping<br>Free above RM50':'运费 RM5<br>满RM50免运'}</div>`;
+
+  const optPickup = document.getElementById('opt-pickup');
+  if (optPickup) optPickup.innerHTML = `
+    <div style="font-size:28px;margin-bottom:6px;">🏪</div>
+    <div style="font-size:13px;font-weight:700;">${lang==='en'?'Self Pickup':'到店自取'}</div>
+    <div style="font-size:10px;color:var(--muted);margin-top:3px;">${lang==='en'?'Free shipping<br>Appointment required':'免运费<br>需预约时间'}</div>`;
+
+  // Address labels
+  const labels = {
+    recipientName: {zh:'收货人姓名', en:'Recipient Name'},
+    recipientPhone: {zh:'联系电话', en:'Phone Number'},
+    recipientAddr: {zh:'详细地址', en:'Address'},
+    recipientCity: {zh:'城市', en:'City'},
+    recipientPostcode: {zh:'邮编', en:'Postcode'},
+    pickupName: {zh:'姓名', en:'Full Name'},
+    pickupPhone: {zh:'联系电话', en:'Phone Number'},
+    pickupDate: {zh:'预约自取日期', en:'Pickup Date'},
+    pickupTime: {zh:'预约时间', en:'Pickup Time'},
+  };
+  Object.entries(labels).forEach(([id, texts]) => {
+    const el = document.getElementById(id);
+    if (el && el.previousElementSibling) el.previousElementSibling.textContent = texts[lang];
+  });
+
+  // Cart & checkout labels
+  const sumLabels = [
+    {id:'sumSub', zh:'商品小计', en:'Subtotal'},
+    {id:'sumShip', zh:null, en:null},
+    {id:'sumDisc', zh:'会员折扣', en:'Member Discount'},
+    {id:'sumTotal', zh:'合计', en:'Total'},
+  ];
+  sumLabels.forEach(({id,zh,en}) => {
+    if (!zh) return;
+    const el = document.getElementById(id);
+    if (el && el.previousElementSibling) el.previousElementSibling.textContent = lang==='en'?en:zh;
+  });
+
+  // Checkout button
+  document.querySelectorAll('.btn-checkout').forEach(btn => {
+    if (btn.textContent.includes('结账') || btn.textContent.includes('Checkout'))
+      btn.textContent = lang==='en' ? 'Checkout →' : '去结账 →';
+  });
+
+  // Confirm order button
+  document.querySelectorAll('[onclick="placeOrder()"]').forEach(btn => {
+    btn.textContent = lang==='en' ? 'Confirm Order 🎉' : '确认订单 🎉';
+  });
+
+  // Cart page title
+  const cartTitle = document.querySelector('#page-cart .page-title');
+  if (cartTitle) cartTitle.textContent = lang==='en' ? 'My Cart' : '购物车';
+
   // Re-render products
   renderProducts(allProducts);
   showToast(lang === 'en' ? 'Switched to English 🇬🇧' : '已切换中文 🇨🇳');
