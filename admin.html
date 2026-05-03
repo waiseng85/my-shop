@@ -306,6 +306,17 @@ html,body{height:100%;font-family:'Noto Sans SC',sans-serif;background:var(--bg)
             <button class="btn-save" onclick="saveShopSettings()">💾 保存并应用到前台</button>
           </div>
 
+          <div class="settings-section" style="margin-top:14px;">
+            <div class="settings-title">📞 联系方式（显示在 Privacy Policy）</div>
+            <div class="form-group"><label class="form-label">Telegram Bot 用户名</label><input class="form-input" id="contactTelegram" placeholder="@Mtoday_bot"></div>
+            <div class="form-group"><label class="form-label">WhatsApp 号码（选填）</label><input class="form-input" id="contactWhatsapp" placeholder="+60 12-345 6789"></div>
+            <div class="form-group"><label class="form-label">Email（选填）</label><input class="form-input" id="contactEmail" placeholder="ngstoretrading@gmail.com" type="email"></div>
+            <div class="form-group"><label class="form-label">店铺地址（自取地点）</label><input class="form-input" id="contactAddr" placeholder="No.1, Jalan XXX, 10000 George Town, Penang"></div>
+            <div class="form-group"><label class="form-label">营业时间</label><input class="form-input" id="contactHours" placeholder="Mon-Sat: 10:00 AM - 6:00 PM"></div>
+            <div class="form-group"><label class="form-label">网站地址</label><input class="form-input" id="contactWeb" placeholder="waiseng85.github.io/my-shop"></div>
+            <button class="btn-save" onclick="saveContactInfo()">💾 保存联系方式</button>
+          </div>
+
           <div class="settings-section">
             <div class="settings-title">🎨 主题颜色</div>
             <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px;">
@@ -819,6 +830,7 @@ function addNewOrder(orderData) {
 
 // ===== SHOP SETTINGS =====
 function loadShopSettings() {
+  loadContactInfo();
   const s = JSON.parse(localStorage.getItem('shopSettings') || '{}');
   if (s.nameCN) document.getElementById('shopNameCN').value = s.nameCN;
   if (s.nameEN) document.getElementById('shopNameEN').value = s.nameEN;
@@ -878,6 +890,29 @@ document.addEventListener('input', e => {
     document.getElementById('logoText').textContent = letter;
   }
 });
+
+function loadContactInfo() {
+  const c = JSON.parse(localStorage.getItem('shopContact') || '{}');
+  if (c.telegram) document.getElementById('contactTelegram').value = c.telegram;
+  if (c.whatsapp) document.getElementById('contactWhatsapp').value = c.whatsapp;
+  if (c.email) document.getElementById('contactEmail').value = c.email;
+  if (c.addr) document.getElementById('contactAddr').value = c.addr;
+  if (c.hours) document.getElementById('contactHours').value = c.hours;
+  if (c.web) document.getElementById('contactWeb').value = c.web;
+}
+
+function saveContactInfo() {
+  const c = {
+    telegram: document.getElementById('contactTelegram').value.trim(),
+    whatsapp: document.getElementById('contactWhatsapp').value.trim(),
+    email: document.getElementById('contactEmail').value.trim(),
+    addr: document.getElementById('contactAddr').value.trim(),
+    hours: document.getElementById('contactHours').value.trim(),
+    web: document.getElementById('contactWeb').value.trim(),
+  };
+  localStorage.setItem('shopContact', JSON.stringify(c));
+  showToast('联系方式已保存！✅ 刷新前台即可更新');
+}
 
 function saveShopSettings() {
   const s = {

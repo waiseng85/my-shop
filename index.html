@@ -1069,6 +1069,34 @@ function loadCategories() {
   }).join('');
 }
 
+function loadContactInfo() {
+  const c = JSON.parse(localStorage.getItem('shopContact') || '{}');
+  const s = JSON.parse(localStorage.getItem('shopSettings') || '{}');
+  const shopName = s.nameCN || 'Ng Store Trading';
+
+  // Update Privacy Policy contact section
+  const el = document.getElementById('privacyContact');
+  if (el) {
+    let html = `<div>🏪 <strong>${shopName}</strong></div>`;
+    if (c.telegram) html += `<div>📱 ${c.telegram} (Telegram)</div>`;
+    if (c.whatsapp) html += `<div>📞 ${c.whatsapp} (WhatsApp)</div>`;
+    if (c.email) html += `<div>✉️ ${c.email}</div>`;
+    if (c.addr) html += `<div>📍 ${c.addr}</div>`;
+    if (c.hours) html += `<div>🕐 ${c.hours}</div>`;
+    if (c.web) html += `<div>🌐 ${c.web}</div>`;
+    el.innerHTML = html;
+  }
+
+  // Update pickup address in checkout
+  const pickup = document.getElementById('pickupAddressInfo');
+  if (pickup && (c.addr || c.hours)) {
+    pickup.innerHTML = `
+      📍 <strong>店铺地址：</strong><br>
+      ${c.addr || '请联系我们获取地址'}<br>
+      🕐 ${c.hours || '10:00 AM - 6:00 PM'}`;
+  }
+}
+
 function applyShopSettings() {
   const s = JSON.parse(localStorage.getItem('shopSettings') || '{}');
   
@@ -1149,6 +1177,7 @@ function loadMyOrders() {
 }
 
 applyShopSettings();
+loadContactInfo();
 loadCategories();
 loadProducts();
 updateCartBadge();
@@ -1333,7 +1362,7 @@ updateCartBadge();
       <div style="background:#fff;border-radius:14px;padding:20px;border:1px solid var(--border);margin-bottom:14px;">
         <h2 style="font-size:16px;font-weight:700;margin-bottom:10px;color:var(--text);">10. Contact Us</h2>
         <p style="font-size:13px;color:var(--text2);line-height:1.7;">If you have any questions about this Privacy Policy, please contact us:</p>
-        <div style="margin-top:10px;background:var(--bg);border-radius:10px;padding:12px;font-size:13px;color:var(--text2);line-height:1.8;">
+        <div id="privacyContact" style="margin-top:10px;background:var(--bg);border-radius:10px;padding:12px;font-size:13px;color:var(--text2);line-height:1.8;">
           <div>🏪 <strong>Ng Store Trading</strong></div>
           <div>📱 @Mtoday_bot (Telegram)</div>
           <div>🌐 waiseng85.github.io/my-shop</div>
