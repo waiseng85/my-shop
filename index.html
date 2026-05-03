@@ -1138,6 +1138,7 @@ function loadContactInfo() {
   const el = document.getElementById('privacyContact');
   if (el) {
     let html = `<div>🏪 <strong>${shopName}</strong></div>`;
+    if (c.ssm) html += `<div>📋 SSM No: ${c.ssm}</div>`;
     if (c.telegram) html += `<div>📱 ${c.telegram} (Telegram)</div>`;
     if (c.whatsapp) html += `<div>📞 ${c.whatsapp} (WhatsApp)</div>`;
     if (c.email) html += `<div>✉️ ${c.email}</div>`;
@@ -1145,6 +1146,16 @@ function loadContactInfo() {
     if (c.hours) html += `<div>🕐 ${c.hours}</div>`;
     if (c.web) html += `<div>🌐 ${c.web}</div>`;
     el.innerHTML = html;
+  }
+
+  // Update footer SSM
+  const footerSSM = document.getElementById('footerSSM');
+  const s2 = JSON.parse(localStorage.getItem('shopSettings') || '{}');
+  const shopName2 = s2.nameCN || 'Ng Store Trading';
+  if (footerSSM) {
+    footerSSM.textContent = c.ssm 
+      ? `© 2026 ${shopName2} · SSM: ${c.ssm}` 
+      : `© 2026 ${shopName2}`;
   }
 
   // Update pickup address in checkout

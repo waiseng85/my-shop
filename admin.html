@@ -308,6 +308,7 @@ html,body{height:100%;font-family:'Noto Sans SC',sans-serif;background:var(--bg)
 
           <div class="settings-section" style="margin-top:14px;">
             <div class="settings-title">📞 联系方式（显示在 Privacy Policy）</div>
+            <div class="form-group"><label class="form-label">SSM 注册号码</label><input class="form-input" id="contactSSM" placeholder="例：002812345-A"></div>
             <div class="form-group"><label class="form-label">Telegram Bot 用户名</label><input class="form-input" id="contactTelegram" placeholder="@Mtoday_bot"></div>
             <div class="form-group"><label class="form-label">WhatsApp 号码（选填）</label><input class="form-input" id="contactWhatsapp" placeholder="+60 12-345 6789"></div>
             <div class="form-group"><label class="form-label">Email（选填）</label><input class="form-input" id="contactEmail" placeholder="ngstoretrading@gmail.com" type="email"></div>
@@ -894,6 +895,7 @@ document.addEventListener('input', e => {
 
 function loadContactInfo() {
   const c = JSON.parse(localStorage.getItem('shopContact') || '{}');
+  if (c.ssm) document.getElementById('contactSSM').value = c.ssm;
   if (c.telegram) document.getElementById('contactTelegram').value = c.telegram;
   if (c.whatsapp) document.getElementById('contactWhatsapp').value = c.whatsapp;
   if (c.email) document.getElementById('contactEmail').value = c.email;
@@ -904,6 +906,7 @@ function loadContactInfo() {
 
 function saveContactInfo() {
   const c = {
+    ssm: document.getElementById('contactSSM').value.trim(),
     telegram: document.getElementById('contactTelegram').value.trim(),
     whatsapp: document.getElementById('contactWhatsapp').value.trim(),
     email: document.getElementById('contactEmail').value.trim(),
