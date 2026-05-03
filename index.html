@@ -779,7 +779,7 @@ function goPage(id) {
   if(id==='page-cart')renderCart();
   if(id==='page-checkout')renderCheckout();
   if(id==='page-track')loadMyOrders();
-  if(id==='page-privacy'){privacyLang=lang==='zh'?'zh':'en';renderPrivacy();}
+  if(id==='page-privacy'){privacyLang=lang==='zh'?'zh':'en';renderPrivacy();loadContactInfo();}
   if(id==='page-auth'&&isLoggedIn){document.getElementById('page-auth').classList.remove('active');document.getElementById('page-profile').classList.add('active');currentPage='page-profile';}
 }
 
@@ -1450,9 +1450,9 @@ function loadMyOrders() {
 }
 
 applyShopSettings();
-loadContactInfo();
 loadCategories();
 loadProducts();
+loadContactInfo();
 updateCartBadge();
 </script>
 <!-- ========== PRIVACY POLICY PAGE ========== -->
