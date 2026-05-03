@@ -148,15 +148,8 @@ body{font-family:'Noto Sans SC',sans-serif;background:var(--bg);color:var(--text
       </button>
     </div>
   </div>
-  <div class="cat-tabs">
+  <div class="cat-tabs" id="catTabs">
     <div class="cat-tab active" onclick="filterCat(this,'all')">全部</div>
-    <div class="cat-tab" onclick="filterCat(this,'promo')">促销 🔥</div>
-    <div class="cat-tab" onclick="filterCat(this,'pastry')">饼干糕点 🍪</div>
-    <div class="cat-tab" onclick="filterCat(this,'drinks')">即冲饮品 ☕</div>
-    <div class="cat-tab" onclick="filterCat(this,'sauce')">麻油/酱料 🫙</div>
-    <div class="cat-tab" onclick="filterCat(this,'snack')">零食小吃 🍿</div>
-    <div class="cat-tab" onclick="filterCat(this,'gift')">礼盒套装 🎁</div>
-    <div class="cat-tab" onclick="filterCat(this,'new')">新品上架 ✨</div>
   </div>
   <div class="searchbar">
     <div class="search-in">
@@ -1003,6 +996,8 @@ function toggleLang() {
   const logoutBtn = document.querySelector('#page-profile .topnav button:last-child');
   if(logoutBtn) logoutBtn.textContent = lang==='en'?'Logout':'退出';
 
+  // Reload categories in new language
+  loadCategories();
   // Re-render products
   renderProducts(allProducts);
   // Re-render cart if visible
@@ -1050,6 +1045,26 @@ renderProducts = function(list) {
 
 
 // ===== LOAD SHOP SETTINGS =====
+const DEFAULT_CATS_FRONT = [
+  {id:'all', nameCN:'全部', nameEN:'All', icon:''},
+  {id:'promo', nameCN:'促销', nameEN:'Promo', icon:'🔥'},
+  {id:'pastry', nameCN:'饼干糕点', nameEN:'Pastries', icon:'🍪'},
+  {id:'drinks', nameCN:'即冲饮品', nameEN:'Beverages', icon:'☕'},
+  {id:'sauce', nameCN:'麻油/酱料', nameEN:'Sauces', icon:'🫙'},
+  {id:'snack', nameCN:'零食小吃', nameEN:'Snacks', icon:'🍿'},
+  {id:'gift', nameCN:'礼盒套装', nameEN:'Gift Sets', icon:'🎁'},
+  {id:'new', nameCN:'新品上架', nameEN:'New', icon:'✨'},
+];
+
+function loadCategories() {
+  const savedCats = JSON.parse(localStorage.getItem('wxy_cats') || 'null') || DEFAULT_CATS_FRONT;
+  const tabs = document.getElementById('catTabs');
+  tabs.innerHTML = savedCats.map((c,i) => {
+    const label = lang==='en' ? `${c.nameEN}${c.icon?' '+c.icon:''}` : `${c.nameCN}${c.icon?' '+c.icon:''}`;
+    return `<div class="cat-tab${i===0?' active':''}" onclick="filterCat(this,'${c.id}')">${label}</div>`;
+  }).join('');
+}
+
 function applyShopSettings() {
   const s = JSON.parse(localStorage.getItem('shopSettings') || '{}');
   
@@ -1130,6 +1145,7 @@ function loadMyOrders() {
 }
 
 applyShopSettings();
+loadCategories();
 loadProducts();
 updateCartBadge();
 </script>

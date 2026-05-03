@@ -140,6 +140,9 @@ html,body{height:100%;font-family:'Noto Sans SC',sans-serif;background:var(--bg)
           <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>商品管理
         </div>
         <div class="nav-section">系统</div>
+        <div class="nav-item" onclick="showSection('categories',this)">
+          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>分类管理
+        </div>
         <div class="nav-item" onclick="showSection('orders',this)">
           <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>订单管理
         </div>
@@ -204,6 +207,22 @@ html,body{height:100%;font-family:'Noto Sans SC',sans-serif;background:var(--bg)
             <button class="btn-add" onclick="openAddProduct()">＋ 添加商品</button>
           </div>
           <div class="products-grid" id="productsGrid"><div class="loading" style="grid-column:1/-1;">加载中...</div></div>
+        </div>
+
+        <!-- CATEGORIES -->
+        <div class="section" id="sec-categories">
+          <div class="section-header">
+            <div style="font-size:13px;color:var(--text2);">共 <span id="catCount">0</span> 个分类</div>
+            <button class="btn-add" onclick="openAddCat()">＋ 添加分类</button>
+          </div>
+
+          <!-- Default categories notice -->
+          <div style="background:#FFF8E1;border-radius:12px;padding:12px 14px;margin-bottom:14px;font-size:12px;color:#8D6E00;line-height:1.6;">
+            💡 默认分类：全部、促销、饼干糕点、即冲饮品、麻油/酱料、零食小吃、礼盒套装、新品上架<br>
+            您可以添加自定义分类，或编辑现有分类名称
+          </div>
+
+          <div class="gap-stack" id="catList"></div>
         </div>
 
         <!-- ORDERS -->
@@ -324,6 +343,33 @@ html,body{height:100%;font-family:'Noto Sans SC',sans-serif;background:var(--bg)
   </div>
 </div>
 
+<!-- CATEGORY MODAL -->
+<div class="modal-overlay" id="catModal">
+  <div class="modal">
+    <div class="modal-title">
+      <span id="catModalTitle">添加分类</span>
+      <button class="modal-close" onclick="closeCatModal()">×</button>
+    </div>
+    <div class="form-group">
+      <label class="form-label">分类图标（Emoji）</label>
+      <input class="form-input" id="catIcon" placeholder="🍪" style="font-size:24px;text-align:center;" maxlength="2">
+    </div>
+    <div class="form-group">
+      <label class="form-label">分类名称（中文）</label>
+      <input class="form-input" id="catNameCN" placeholder="例：热销商品">
+    </div>
+    <div class="form-group">
+      <label class="form-label">分类名称（英文）</label>
+      <input class="form-input" id="catNameEN" placeholder="例：Best Sellers">
+    </div>
+    <div class="form-group">
+      <label class="form-label">分类 ID（自动生成，无需修改）</label>
+      <input class="form-input" id="catId" placeholder="自动生成" readonly style="color:var(--muted);">
+    </div>
+    <button class="btn-save" onclick="saveCat()">保存分类</button>
+  </div>
+</div>
+
 <div class="modal-overlay" id="productModal">
   <div class="modal">
     <div class="modal-title"><span id="modalTitle">添加商品</span><button class="modal-close" onclick="closeModal()">×</button></div>
@@ -381,6 +427,7 @@ function doAdminLogin() {
     document.getElementById('adminPage').style.display = 'block';
     loadProducts();
     loadShopSettings();
+    updateCatDropdown();
     showToast('欢迎回来！');
   } else { showToast('账号或密码错误！'); }
 }
@@ -388,7 +435,7 @@ function doLogout() { document.getElementById('adminPage').style.display = 'none
 function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); document.getElementById('overlay').classList.toggle('show'); }
 function closeSidebar() { document.getElementById('sidebar').classList.remove('open'); document.getElementById('overlay').classList.remove('show'); }
 
-const titles = {dashboard:'数据总览',products:'商品管理',orders:'订单管理',shop:'店铺设置',settings:'系统设置'};
+const titles = {dashboard:'数据总览',products:'商品管理',categories:'分类管理',orders:'订单管理',shop:'店铺设置',settings:'系统设置'};
 function showSection(id, el) {
   document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
@@ -397,6 +444,7 @@ function showSection(id, el) {
   document.getElementById('topbarTitle').textContent = titles[id];
   closeSidebar();
   if(id==='products') renderProducts(allProducts);
+  if(id==='categories') { renderCats(); updateCatDropdown(); }
   if(id==='orders') renderOrders(orders);
   if(id==='dashboard') updateDashboard();
 }
@@ -556,6 +604,110 @@ async function aiTranslate() {
   btn.disabled = false;
 }
 
+
+
+
+// ===== CATEGORIES SYSTEM =====
+const DEFAULT_CATS = [
+  {id:'all', nameCN:'全部', nameEN:'All', icon:'🏠', editable:false},
+  {id:'promo', nameCN:'促销', nameEN:'Promo', icon:'🔥', editable:true},
+  {id:'pastry', nameCN:'饼干糕点', nameEN:'Pastries', icon:'🍪', editable:true},
+  {id:'drinks', nameCN:'即冲饮品', nameEN:'Beverages', icon:'☕', editable:true},
+  {id:'sauce', nameCN:'麻油/酱料', nameEN:'Sauces', icon:'🫙', editable:true},
+  {id:'snack', nameCN:'零食小吃', nameEN:'Snacks', icon:'🍿', editable:true},
+  {id:'gift', nameCN:'礼盒套装', nameEN:'Gift Sets', icon:'🎁', editable:true},
+  {id:'new', nameCN:'新品上架', nameEN:'New Arrivals', icon:'✨', editable:true},
+];
+
+let cats = JSON.parse(localStorage.getItem('wxy_cats') || 'null') || DEFAULT_CATS;
+
+function saveCats() {
+  localStorage.setItem('wxy_cats', JSON.stringify(cats));
+  // Update product category dropdown
+  updateCatDropdown();
+}
+
+function updateCatDropdown() {
+  const select = document.getElementById('pCat');
+  if (!select) return;
+  const current = select.value;
+  select.innerHTML = cats.filter(c=>c.id!=='all').map(c=>
+    `<option value="${c.id}">${c.nameCN}</option>`
+  ).join('');
+  select.value = current;
+}
+
+function renderCats() {
+  const list = document.getElementById('catList');
+  document.getElementById('catCount').textContent = cats.length;
+  list.innerHTML = cats.map((c,i) => `
+    <div style="background:#fff;border-radius:13px;padding:13px 14px;border:1px solid var(--border);display:flex;align-items:center;gap:12px;box-shadow:0 2px 8px rgba(0,0,0,0.05);">
+      <div style="font-size:24px;width:40px;text-align:center;">${c.icon}</div>
+      <div style="flex:1;">
+        <div style="font-size:13px;font-weight:700;color:var(--text);">${c.nameCN}</div>
+        <div style="font-size:11px;color:var(--text2);">${c.nameEN} · ID: ${c.id}</div>
+      </div>
+      ${c.editable ? `
+      <div style="display:flex;gap:6px;">
+        <button onclick="editCat(${i})" style="background:var(--blue);color:#fff;border:none;padding:6px 12px;border-radius:7px;font-size:11px;font-weight:600;cursor:pointer;">✏️ 编辑</button>
+        <button onclick="deleteCat(${i})" style="background:#FFEBEE;color:var(--red);border:none;padding:6px 10px;border-radius:7px;font-size:11px;cursor:pointer;">🗑</button>
+      </div>` : `<div style="font-size:10px;color:var(--muted);background:var(--bg);padding:3px 8px;border-radius:10px;">默认</div>`}
+    </div>`).join('');
+}
+
+let editingCatIdx = null;
+
+function openAddCat() {
+  editingCatIdx = null;
+  document.getElementById('catModalTitle').textContent = '添加分类';
+  document.getElementById('catNameCN').value = '';
+  document.getElementById('catNameEN').value = '';
+  document.getElementById('catIcon').value = '🏷️';
+  document.getElementById('catId').value = '';
+  document.getElementById('catModal').classList.add('show');
+}
+
+function editCat(i) {
+  editingCatIdx = i;
+  const c = cats[i];
+  document.getElementById('catModalTitle').textContent = '编辑分类';
+  document.getElementById('catNameCN').value = c.nameCN;
+  document.getElementById('catNameEN').value = c.nameEN;
+  document.getElementById('catIcon').value = c.icon;
+  document.getElementById('catId').value = c.id;
+  document.getElementById('catModal').classList.add('show');
+}
+
+function saveCat() {
+  const nameCN = document.getElementById('catNameCN').value.trim();
+  const nameEN = document.getElementById('catNameEN').value.trim();
+  const icon = document.getElementById('catIcon').value.trim();
+  if (!nameCN) { showToast('请填写分类名称！'); return; }
+
+  if (editingCatIdx !== null) {
+    cats[editingCatIdx] = {...cats[editingCatIdx], nameCN, nameEN, icon};
+    showToast('分类已更新！✅');
+  } else {
+    const id = 'cat_' + Date.now();
+    cats.push({id, nameCN, nameEN, icon, editable:true});
+    showToast('分类已添加！✅');
+  }
+  saveCats();
+  renderCats();
+  closeCatModal();
+}
+
+function deleteCat(i) {
+  if (!confirm(`确定删除「${cats[i].nameCN}」分类吗？`)) return;
+  cats.splice(i, 1);
+  saveCats();
+  renderCats();
+  showToast('分类已删除');
+}
+
+function closeCatModal() {
+  document.getElementById('catModal').classList.remove('show');
+}
 
 
 // ===== ORDERS SYSTEM =====
