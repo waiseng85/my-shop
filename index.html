@@ -1001,6 +1001,65 @@ function toggleLang() {
   const logoutBtn = document.querySelector('#page-profile .topnav button:last-child');
   if(logoutBtn) logoutBtn.textContent = lang==='en'?'Logout':'退出';
 
+  // Auth page
+  const authHeroH2 = document.querySelector('.auth-hero h2');
+  const authHeroP = document.querySelector('.auth-hero p');
+  if(authHeroH2) authHeroH2.textContent = lang==='en'?'🍪 Ng Store Member':'🍪 味香园会员';
+  if(authHeroP) authHeroP.textContent = lang==='en'?'Join us for exclusive deals & rewards':'加入会员，享受专属优惠与积分奖励';
+
+  // Auth tabs
+  const authTab1 = document.querySelector('.auth-tab:first-child');
+  const authTab2 = document.querySelector('.auth-tab:last-child');
+  if(authTab1) authTab1.textContent = lang==='en'?'Login':'登录';
+  if(authTab2) authTab2.textContent = lang==='en'?'Register':'注册';
+
+  // Login form labels
+  const loginLabels = document.querySelectorAll('#loginForm .form-label');
+  if(loginLabels[0]) loginLabels[0].textContent = lang==='en'?'Phone / Email':'手机号码 / 邮箱';
+  if(loginLabels[1]) loginLabels[1].textContent = lang==='en'?'Password':'密码';
+  const loginInputs = document.querySelectorAll('#loginForm .form-input');
+  if(loginInputs[0]) loginInputs[0].placeholder = lang==='en'?'Phone number or email':'请输入手机号或邮箱';
+  if(loginInputs[1]) loginInputs[1].placeholder = lang==='en'?'Enter password':'请输入密码';
+  const loginBtn = document.querySelector('#loginForm .btn-primary');
+  if(loginBtn) loginBtn.textContent = lang==='en'?'Login':'登录';
+
+  // Register form labels
+  const regLabels = document.querySelectorAll('#registerForm .form-label');
+  const regLabelTexts = lang==='en'?['Full Name','Phone Number','Password']:['姓名','手机号码','密码'];
+  regLabels.forEach((l,i) => { if(regLabelTexts[i]) l.textContent = regLabelTexts[i]; });
+  const regInputs = document.querySelectorAll('#registerForm .form-input');
+  const regPhs = lang==='en'?['Enter your name','+60 12-345 6789','At least 6 characters']:['请输入您的姓名','+60 12-345 6789','至少6位字符'];
+  regInputs.forEach((inp,i) => { if(regPhs[i]) inp.placeholder = regPhs[i]; });
+  const regBtn = document.querySelector('#registerForm .btn-primary');
+  if(regBtn) regBtn.textContent = lang==='en'?'Register':'注册会员';
+
+  // Member perks section
+  const perksTitle = document.querySelector('#page-auth .sec-title');
+  if(perksTitle) perksTitle.textContent = lang==='en'?'Member Benefits':'会员专属权益';
+  const perks = document.querySelectorAll('.perk');
+  const perkData = lang==='en'?[
+    {title:'Exclusive Discount',desc:'10% off for members'},
+    {title:'Free Shipping',desc:'Free above RM50'},
+    {title:'Birthday Gift',desc:'Special gift on your birthday'},
+    {title:'Points Reward',desc:'Earn points on every purchase'},
+  ]:[
+    {title:'专属折扣',desc:'会员享受9折优惠'},
+    {title:'免费送货',desc:'满RM50免运费'},
+    {title:'生日礼遇',desc:'生日月专属礼品'},
+    {title:'积分奖励',desc:'消费累积积分兑换'},
+  ];
+  perks.forEach((perk,i) => {
+    if(!perkData[i]) return;
+    const t = perk.querySelector('.perk-title');
+    const d = perk.querySelector('.perk-desc');
+    if(t) t.textContent = perkData[i].title;
+    if(d) d.textContent = perkData[i].desc;
+  });
+
+  // Auth page title
+  const authTitle = document.querySelector('#page-auth .page-title');
+  if(authTitle) authTitle.textContent = lang==='en'?'Member Centre':'会员中心';
+
   // Reload categories in new language
   loadCategories();
   // Re-render products
