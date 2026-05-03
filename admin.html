@@ -970,6 +970,26 @@ function applyAdminBranding(s) {
 
 function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2200);}
 document.addEventListener('keydown',e=>{if(e.key==='Enter'&&document.getElementById('loginPage').style.display!=='none')doAdminLogin();});
+
+// Auto-apply branding on page load
+(function() {
+  const s = JSON.parse(localStorage.getItem('shopSettings') || '{}');
+  if (!s.nameCN && !s.logo && !s.color) return;
+  
+  const loginIcon = document.querySelector('.login-logo-icon');
+  const loginTitle = document.querySelector('.login-logo h2');
+
+  if (loginIcon) {
+    if (s.logo) {
+      loginIcon.innerHTML = `<img src="${s.logo}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
+    } else if (s.letter) {
+      loginIcon.textContent = s.letter;
+    }
+    if (s.color) loginIcon.style.background = `linear-gradient(135deg,${s.color},${s.color}aa)`;
+  }
+  if (loginTitle && s.nameCN) loginTitle.textContent = s.nameCN + '后台管理';
+  if (s.color) document.documentElement.style.setProperty('--red', s.color);
+})();
 </script>
 </body>
 </html>
