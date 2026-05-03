@@ -119,7 +119,7 @@ html,body{height:100%;font-family:'Noto Sans SC',sans-serif;background:var(--bg)
     <div class="form-group"><label class="form-label">账号</label><input class="form-input" id="adminUser" type="text" placeholder="admin"></div>
     <div class="form-group"><label class="form-label">密码</label><input class="form-input" id="adminPass" type="password" placeholder="••••••••"></div>
     <button class="btn-login" onclick="doAdminLogin()">登录后台</button>
-    <div class="login-hint">默认账号：admin　密码：123456</div>
+
   </div>
 </div>
 
@@ -834,6 +834,7 @@ function loadShopSettings() {
   const s = JSON.parse(localStorage.getItem('shopSettings') || '{}');
   if (s.nameCN) document.getElementById('shopNameCN').value = s.nameCN;
   if (s.nameEN) document.getElementById('shopNameEN').value = s.nameEN;
+  if (s.pageTitle) document.getElementById('shopPageTitle').value = s.pageTitle;
   if (s.letter) document.getElementById('logoLetter').value = s.letter;
   if (s.bannerCN) document.getElementById('bannerTitleCN').value = s.bannerCN;
   if (s.bannerEN) document.getElementById('bannerTitleEN').value = s.bannerEN;
@@ -918,6 +919,7 @@ function saveShopSettings() {
   const s = {
     nameCN: document.getElementById('shopNameCN').value || '味香园',
     nameEN: document.getElementById('shopNameEN').value || '',
+    pageTitle: document.getElementById('shopPageTitle').value || '',
     letter: document.getElementById('logoLetter').value || '味',
     bannerCN: document.getElementById('bannerTitleCN').value || '',
     bannerEN: document.getElementById('bannerTitleEN').value || '',

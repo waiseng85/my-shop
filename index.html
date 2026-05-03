@@ -1162,6 +1162,11 @@ function applyShopSettings() {
   
   if (s.nameCN) {
     document.querySelectorAll('.logo-name').forEach(el => el.textContent = s.nameCN);
+  }
+  // Apply custom page title if set, otherwise use shop name
+  if (s.pageTitle) {
+    document.title = s.pageTitle;
+  } else if (s.nameCN) {
     document.title = s.nameCN + ' · 精品食品店';
   }
   if (s.color) {
