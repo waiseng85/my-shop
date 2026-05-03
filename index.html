@@ -1183,29 +1183,44 @@ function loadContactInfo() {
 function applyShopSettings() {
   const s = JSON.parse(localStorage.getItem('shopSettings') || '{}');
   
+  // Shop name
   if (s.nameCN) {
     document.querySelectorAll('.logo-name').forEach(el => el.textContent = s.nameCN);
+    // Update auth page hero
+    const authHero = document.querySelector('.auth-hero h2');
+    if (authHero && !authHero.dataset.customized) authHero.textContent = '🍪 ' + s.nameCN + '会员';
   }
-  // Apply custom page title if set, otherwise use shop name
+
+  // Page title
   if (s.pageTitle) {
     document.title = s.pageTitle;
   } else if (s.nameCN) {
-    document.title = s.nameCN + ' · 精品食品店';
+    document.title = s.nameCN + ' · Online Shop';
   }
+
+  // Theme color
   if (s.color) {
     document.documentElement.style.setProperty('--red', s.color);
     document.documentElement.style.setProperty('--red-light', s.color + 'cc');
   }
-  if (s.logo) {
-    document.querySelectorAll('.logo-circle').forEach(el => {
+
+  // Logo - apply to ALL logo circles on all pages
+  document.querySelectorAll('.logo-circle').forEach(el => {
+    if (s.logo) {
       el.innerHTML = `<img src="${s.logo}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
-    });
-  } else if (s.letter) {
-    document.querySelectorAll('.logo-circle').forEach(el => el.textContent = s.letter);
-  }
+    } else if (s.letter) {
+      el.textContent = s.letter;
+    }
+  });
+
+  // Banner
   if (s.bannerCN) {
     const h2 = document.querySelector('.hero-content h2');
     if (h2) h2.textContent = s.bannerCN;
+  }
+  if (s.bannerEN) {
+    // Store for language toggle
+    window._bannerEN = s.bannerEN;
   }
 }
 
